@@ -1,0 +1,65 @@
+﻿using citizen_app.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace citizen_app.Controllers
+{
+    internal interface ICitizenDbContext
+    {
+        /// <summary>
+        /// Retrieves all citizens
+        /// </summary>
+        /// <returns></returns>
+        List<Citizen> GetCitizens();
+
+        /// <summary>
+        /// Retrieves one citizen
+        /// </summary>
+        /// <param name="id">
+        /// Id of citizen
+        /// </param>
+        /// <returns></returns>
+        Citizen GetCitizen(int id);
+
+        /// <summary>
+        /// Retrvives all citizens according to the arguments
+        /// </summary>
+        /// <returns></returns>
+        Citizen GetCitizens(string imya = null, string fam = null, string otchest = null, DateTime? datRozhdFrom = null, DateTime? datRozhdTo = null);
+
+        
+        /// <summary>
+        /// Adds citizen to the database
+        /// </summary>
+        /// <param name="citizen"></param>
+        /// <returns></returns>
+        bool PostCitizen(Citizen citizen);
+
+        /// <summary>
+        /// Updates citizen with <paramref name="id"/>
+        /// </summary>
+        /// <param name="id">
+        /// Id of citizen to be updated
+        /// </param>
+        /// <param name="citizen">
+        /// New citizen value to update
+        /// </param>
+        /// <returns></returns>
+        bool UpdateCitizen(string id, Citizen citizen);
+
+        /// <summary>
+        /// Removes citizen from database with <paramref name="id"/>
+        /// </summary>
+        /// <param name="id">
+        /// Id of citizen to be deleted
+        /// </param>
+        /// <returns></returns>
+        bool DeleteCitizen(string id);
+
+
+
+    }
+}
