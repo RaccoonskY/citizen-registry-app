@@ -126,7 +126,6 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\CitizenController.cs" />
     <Compile Include="Controllers\CitizenDbContext.cs" />
-    <Compile Include="Controllers\DbContextTest.cs" />
     <Compile Include="Controllers\ICitizenDbContext.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>

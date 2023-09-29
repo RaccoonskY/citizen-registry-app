@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace citizen_app.Controllers
 {
-    internal interface ICitizenDbContext
+    public interface ICitizenDbContext
     {
         /// <summary>
         /// Retrieves all citizens

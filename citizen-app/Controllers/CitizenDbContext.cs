@@ -13,7 +13,7 @@ namespace citizen_app.Controllers
     public class CitizenDbContext :ICitizenDbContext
     {
         string ConnectionString { get; set; }
-
+        
 
         public CitizenDbContext(string connectionString)
         {
@@ -33,6 +33,7 @@ namespace citizen_app.Controllers
         {
         }
 
+        //GET
         public List<Citizen> GetCitizens()
         {
             List<Citizen> citizens = new List<Citizen>();
@@ -68,6 +69,7 @@ namespace citizen_app.Controllers
             }
         }
 
+        //GET/ID
         public Citizen GetCitizen(int id)
         {
             using (var conn = new IfxConnection(ConnectionString))
@@ -113,6 +115,7 @@ namespace citizen_app.Controllers
             }
         }
 
+        //GET/PARAMS
         public List<Citizen> GetCitizens(
             string imya = null, 
             string fam = null, 
@@ -121,12 +124,12 @@ namespace citizen_app.Controllers
             DateTime? datRozhdTo = null)
         {
             List<Citizen> citizens = new List<Citizen>();
-            var sqlCom = "select * from citizen";
+            var sqlCom = "SELECT * FROM citizen";
             
 
 
             using (var conn = new IfxConnection(ConnectionString))
-            using (var selectSQLCommand = BuildCommandSearchQuery(sqlCom, conn, fam, imya, otchest, datRozhdFrom, datRozhdTo))
+            using (var selectSQLCommand = BuildCommandSQ(sqlCom, conn, fam, imya, otchest, datRozhdFrom, datRozhdTo))
             {
                 conn.Open();
                 using (var dbReader = selectSQLCommand.ExecuteReader(CommandBehavior.Default))
@@ -155,21 +158,85 @@ namespace citizen_app.Controllers
 
         public bool PostCitizen(Citizen citizen)
         {
-            throw new NotImplementedException();
+            using (var conn = new IfxConnection(ConnectionString))
+            using (var cmd = conn.CreateCommand())
+            {
+                var commandText = "INSERT INTO citizen VALUES(0, ?, ?, ?, ?)";
+                var famParam = new IfxParameter("fam", IfxType.Char){Value = citizen.Fam};
+                var imyaParam = new IfxParameter("imya", IfxType.Char) { Value = citizen.Imya};
+                var otchestParam = new IfxParameter("otchest", IfxType.Char) { Value = citizen.Otchest};
+                var datRozhdParam = new IfxParameter("dat_rozhd", IfxType.Date) {  Value = $"{citizen.Dat_rozhd:dd.mm.yyyy}"};
+                try
+                {
+                    conn.Open();
+                    cmd.CommandText = commandText;
+                    cmd.Parameters.Add(famParam);
+                    cmd.Parameters.Add(imyaParam);
+                    cmd.Parameters.Add(otchestParam);
+                    cmd.Parameters.Add(datRozhdParam);
+                    cmd.ExecuteNonQuery();
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
         public bool UpdateCitizen(string id, Citizen citizen)
         {
-            throw new NotImplementedException();
+            using (var conn = new IfxConnection(ConnectionString))
+            using (var cmd = conn.CreateCommand())
+            {
+                var commandText = "update table1 set fam = ?, imya = ?,otchest = ?, dat_rozhd = ?  where citizen_id = ?";
+                var famParam = new IfxParameter("fam", IfxType.Char) { Value = citizen.Fam };
+                var imyaParam = new IfxParameter("imya", IfxType.Char) { Value = citizen.Imya };
+                var otchestParam = new IfxParameter("otchest", IfxType.Char) { Value = citizen.Otchest };
+                var datRozhdParam = new IfxParameter("dat_rozhd", IfxType.Date) { Value = $"{citizen.Dat_rozhd:dd.mm.yyyy}" };
+                var citizenIdParam = new IfxParameter("citizen_id", IfxType.Integer) { Value = id };
+                try
+                {
+                    conn.Open();
+                    cmd.CommandText = commandText;
+                    cmd.Parameters.Add(famParam);
+                    cmd.Parameters.Add(imyaParam);
+                    cmd.Parameters.Add(otchestParam);
+                    cmd.Parameters.Add(datRozhdParam);
+                    cmd.Parameters.Add(citizenIdParam);
+                    var res = cmd.ExecuteNonQuery();
+                    if (res == 0) return false;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
         public bool DeleteCitizen(string id)
         {
-            throw new NotImplementedException();
+            using (var conn = new IfxConnection(ConnectionString))
+            using (var delCmd = new IfxCommand($"delete from citizen where citizen_id = {id}", conn))
+            {
+                try
+                {
+                    conn.Open();
+                    delCmd.ExecuteNonQuery();
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
+        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         //SHOULD BE REFACTORED
-        private IfxCommand BuildCommandSearchQuery(
+        //CHANGING ifxCommand must be in separated function
+        private IfxCommand BuildCommandSQ(
             string sql,
             IfxConnection conn,
             string fam = null,
