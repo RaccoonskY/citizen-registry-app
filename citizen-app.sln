@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33829.357
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "citizen-app", "citizen-app\citizen-app.csproj", "{0E350DF4-2317-4C01-BCE8-911F35F2118B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0E350DF4-2317-4C01-BCE8-911F35F2118B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E350DF4-2317-4C01-BCE8-911F35F2118B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E350DF4-2317-4C01-BCE8-911F35F2118B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E350DF4-2317-4C01-BCE8-911F35F2118B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0B6FDA49-C483-49C9-8180-7ED13F840BBB}
+	EndGlobalSection
+EndGlobal

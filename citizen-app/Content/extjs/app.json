@@ -1,0 +1,19 @@
+{
+    "name": "CitizensApp",
+
+    "requires": [
+    ],
+    
+    "classpath": [
+        "app"
+    ],
+    "exclude":[
+        "ext"
+    ],
+
+    "docURL": {
+        "Ext": "https://docs.sencha.com/extjs/4.2.1"
+    },
+    
+    "id": "62217dac-db37-42bb-a02b-2c544b837467"
+}
