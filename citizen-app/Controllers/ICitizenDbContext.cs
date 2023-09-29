@@ -28,9 +28,9 @@ namespace citizen_app.Controllers
         /// Retrvives all citizens according to the arguments
         /// </summary>
         /// <returns></returns>
-        Citizen GetCitizens(
-            string imya = null, 
+        List<Citizen> GetCitizens(
             string fam = null, 
+            string imya = null, 
             string otchest = null, 
             DateTime? datRozhdFrom = null, 
             DateTime? datRozhdTo = null

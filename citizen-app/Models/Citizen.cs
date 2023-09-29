@@ -7,7 +7,7 @@ namespace citizen_app.Models
 {
     public class Citizen
     {
-        public int Id { get; set; }
+        public int Citizen_id { get; set; }
         public string Fam { get; set; }
         public string Imya { get; set; }
         public string Otchest { get; set; }

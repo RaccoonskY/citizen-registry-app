@@ -194,6 +194,49 @@ namespace citizen_app.Controllers
             return true;
         }
 
+        private IfxCommand SearchQueryBuild(
+            string sql,
+            IfxConnection conn,
+            string fam = null,
+            string imya = null,
+            string otchest = null,
+            DateTime? datRozhdFrom = null,
+            DateTime? datRozhdTo = null)
+        {
+            var addingAND = false;
+
+            if (fam != null)
+            {
+                sql += $" WHERE fam = {fam}";
+                addingAND = true;
+            }
+            if (imya != null)
+            {
+                sql += addingAND ? " AND" : " WHERE";
+                sql += $" imya = {imya}";
+                addingAND = true;
+            }
+            if (otchest != null)
+            {
+                sql += addingAND ? " AND" : " WHERE";
+                sql += $" otchest = {otchest}";
+                addingAND = true;
+            }
+            if (datRozhdFrom != null)
+            {
+                sql += addingAND ? " AND" : " WHERE";
+                sql += $" dat_rozhd >= {datRozhdFrom.Value:dd.mm.yyyy}";
+                addingAND = true;
+            }
+            if (datRozhdTo != null)
+            {
+                sql += addingAND ? " AND" : " WHERE";
+                sql += $" dat_rozhd <= {datRozhdTo.Value:dd.mm.yyyy}";
+            }
+
+            return sql;
+
+        }
         ///
     }
 }
