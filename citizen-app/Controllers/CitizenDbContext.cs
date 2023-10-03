@@ -36,7 +36,7 @@ namespace citizen_app.Controllers
         //GET
         public List<Citizen> GetCitizens()
         {
-            List<Citizen> citizens = new List<Citizen>();
+
 
             using (var conn = new IfxConnection(ConnectionString))
             using (var selectSQLCommand = new IfxCommand(
@@ -47,6 +47,9 @@ namespace citizen_app.Controllers
                 conn.Open();
                 using (var dbReader = selectSQLCommand.ExecuteReader(CommandBehavior.Default))
                 {
+                    if (!dbReader.HasRows)
+                        return null;
+                    List<Citizen> citizens = new List<Citizen>();
 
                     while (dbReader.Read())
                     {
@@ -84,7 +87,7 @@ namespace citizen_app.Controllers
                     Value = id
                 };
 
-                Citizen citizenRes;
+
                 try
                 {
                     selectCom.Parameters.Add(idParam);
@@ -95,7 +98,7 @@ namespace citizen_app.Controllers
                             return null;
 
                         dbReader.Read();
-                        citizenRes = new Citizen()
+                        var citizenRes = new Citizen()
                         {
                             Citizen_id = dbReader.GetInt32(0),
                             Imya = dbReader.GetString(1),
@@ -104,6 +107,8 @@ namespace citizen_app.Controllers
                             Dat_rozhd = dbReader.GetDateTime(4)
                         };
 
+                        return citizenRes;
+
                     }
                 }
                 catch (Exception ex)
@@ -111,22 +116,20 @@ namespace citizen_app.Controllers
                     throw ex;
                 }
 
-                return citizenRes;
+               
             }
         }
 
         //GET/PARAMS
         public List<Citizen> GetCitizens(
-            string imya = null,
             string fam = null,
+            string imya = null,
             string otchest = null,
             DateTime? datRozhdFrom = null,
             DateTime? datRozhdTo = null)
         {
-            List<Citizen> citizens = new List<Citizen>();
+            
             var sqlCom = "SELECT * FROM citizen";
-
-
 
             using (var conn = new IfxConnection(ConnectionString))
             using (var selectSQLCommand = BuildCommandSQ(sqlCom, conn, fam, imya, otchest, datRozhdFrom, datRozhdTo))
@@ -135,6 +138,10 @@ namespace citizen_app.Controllers
                 conn.Open();
                 using (var dbReader = selectSQLCommand.ExecuteReader(CommandBehavior.Default))
                 {
+
+                    if (!dbReader.HasRows)
+                        return null;
+                    List<Citizen> citizens = new List<Citizen>();
 
                     while (dbReader.Read())
                     {
