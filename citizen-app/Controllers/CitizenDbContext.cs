@@ -10,7 +10,7 @@ using System.Web.WebSockets;
 
 namespace citizen_app.Controllers
 {
-    public class CitizenDbContext :ICitizenDbContext
+    public class CitizenDbContext: ICitizenDbContext
     {
         string ConnectionString { get; set; }
         
@@ -54,8 +54,8 @@ namespace citizen_app.Controllers
                           new Citizen()
                           {
                               Citizen_id = dbReader.GetInt32(0),
-                              Imya = dbReader.GetString(1),
-                              Fam = dbReader.GetString(2),
+                              Fam = dbReader.GetString(1),
+                              Imya = dbReader.GetString(2),
                               Otchest = dbReader.GetString(3),
                               Dat_rozhd = dbReader.GetDateTime(4)
                           }
@@ -65,7 +65,7 @@ namespace citizen_app.Controllers
                     dbReader.Close();
                     return citizens;
 
-                }                
+                }
             }
         }
 
@@ -89,7 +89,7 @@ namespace citizen_app.Controllers
                 {
                     selectCom.Parameters.Add(idParam);
                     conn.Open();
-                    using(var dbReader = selectCom.ExecuteReader(CommandBehavior.SingleRow))
+                    using (var dbReader = selectCom.ExecuteReader(CommandBehavior.SingleRow))
                     {
                         if (!dbReader.HasRows)
                             return null;
@@ -117,20 +117,21 @@ namespace citizen_app.Controllers
 
         //GET/PARAMS
         public List<Citizen> GetCitizens(
-            string imya = null, 
-            string fam = null, 
-            string otchest = null, 
-            DateTime? datRozhdFrom = null, 
+            string imya = null,
+            string fam = null,
+            string otchest = null,
+            DateTime? datRozhdFrom = null,
             DateTime? datRozhdTo = null)
         {
             List<Citizen> citizens = new List<Citizen>();
             var sqlCom = "SELECT * FROM citizen";
-            
+
 
 
             using (var conn = new IfxConnection(ConnectionString))
             using (var selectSQLCommand = BuildCommandSQ(sqlCom, conn, fam, imya, otchest, datRozhdFrom, datRozhdTo))
             {
+                Console.WriteLine($"SQL COMMAND: {selectSQLCommand.CommandText}");
                 conn.Open();
                 using (var dbReader = selectSQLCommand.ExecuteReader(CommandBehavior.Default))
                 {
@@ -141,8 +142,8 @@ namespace citizen_app.Controllers
                           new Citizen()
                           {
                               Citizen_id = dbReader.GetInt32(0),
-                              Imya = dbReader.GetString(1),
-                              Fam = dbReader.GetString(2),
+                              Fam = dbReader.GetString(1),
+                              Imya = dbReader.GetString(2),
                               Otchest = dbReader.GetString(3),
                               Dat_rozhd = dbReader.GetDateTime(4)
                           }
@@ -162,10 +163,10 @@ namespace citizen_app.Controllers
             using (var cmd = conn.CreateCommand())
             {
                 var commandText = "INSERT INTO citizen VALUES(0, ?, ?, ?, ?)";
-                var famParam = new IfxParameter("fam", IfxType.Char){Value = citizen.Fam};
-                var imyaParam = new IfxParameter("imya", IfxType.Char) { Value = citizen.Imya};
-                var otchestParam = new IfxParameter("otchest", IfxType.Char) { Value = citizen.Otchest};
-                var datRozhdParam = new IfxParameter("dat_rozhd", IfxType.Date) {  Value = $"{citizen.Dat_rozhd:dd.mm.yyyy}"};
+                var famParam = new IfxParameter("fam", IfxType.Char) { Value = citizen.Fam };
+                var imyaParam = new IfxParameter("imya", IfxType.Char) { Value = citizen.Imya };
+                var otchestParam = new IfxParameter("otchest", IfxType.Char) { Value = citizen.Otchest };
+                var datRozhdParam = new IfxParameter("dat_rozhd", IfxType.Date) { Value = $"{citizen.Dat_rozhd:dd.MM.yyyy}" };
                 try
                 {
                     conn.Open();
@@ -176,24 +177,25 @@ namespace citizen_app.Controllers
                     cmd.Parameters.Add(datRozhdParam);
                     cmd.ExecuteNonQuery();
                 }
-                catch
+                catch (Exception ex)
                 {
+                    Console.WriteLine("POST CITIZEN EXCEPTION OCCURED: " + ex.Message);
                     return false;
                 }
             }
             return true;
         }
 
-        public bool UpdateCitizen(string id, Citizen citizen)
+        public bool UpdateCitizen(int id, Citizen citizen)
         {
             using (var conn = new IfxConnection(ConnectionString))
             using (var cmd = conn.CreateCommand())
             {
-                var commandText = "update table1 set fam = ?, imya = ?,otchest = ?, dat_rozhd = ?  where citizen_id = ?";
+                var commandText = "update citizen set fam = ?, imya = ?,otchest = ?, dat_rozhd = ?  where citizen_id = ?";
                 var famParam = new IfxParameter("fam", IfxType.Char) { Value = citizen.Fam };
                 var imyaParam = new IfxParameter("imya", IfxType.Char) { Value = citizen.Imya };
                 var otchestParam = new IfxParameter("otchest", IfxType.Char) { Value = citizen.Otchest };
-                var datRozhdParam = new IfxParameter("dat_rozhd", IfxType.Date) { Value = $"{citizen.Dat_rozhd:dd.mm.yyyy}" };
+                var datRozhdParam = new IfxParameter("dat_rozhd", IfxType.Date) { Value = $"{citizen.Dat_rozhd:dd.MM.yyyy}" };
                 var citizenIdParam = new IfxParameter("citizen_id", IfxType.Integer) { Value = id };
                 try
                 {
@@ -207,15 +209,16 @@ namespace citizen_app.Controllers
                     var res = cmd.ExecuteNonQuery();
                     if (res == 0) return false;
                 }
-                catch
+                catch (Exception ex)
                 {
+                    Console.WriteLine("UPDATE CITIZEN EXCEPTION OCCURED: " + ex.Message);
                     return false;
                 }
             }
             return true;
         }
 
-        public bool DeleteCitizen(string id)
+        public bool DeleteCitizen(int id)
         {
             using (var conn = new IfxConnection(ConnectionString))
             using (var delCmd = new IfxCommand($"delete from citizen where citizen_id = {id}", conn))
@@ -225,8 +228,9 @@ namespace citizen_app.Controllers
                     conn.Open();
                     delCmd.ExecuteNonQuery();
                 }
-                catch
+                catch (Exception ex)
                 {
+                    Console.WriteLine("DELETE CITIZEN EXCEPTION OCCURED: " + ex.Message);
                     return false;
                 }
             }
@@ -251,20 +255,20 @@ namespace citizen_app.Controllers
 
             if (fam != null)
             {
-                var famParam = new IfxParameter("fam", IfxType.Char) { Value = fam};
+                var famParam = new IfxParameter("fam", IfxType.Char) { Value = fam };
                 searchCom.CommandText += $" WHERE fam = ?";
                 searchCom.Parameters.Add(famParam);
-                addingAND = true ;
+                addingAND = true;
             }
             if (imya != null)
             {
-                var imyaParam = new IfxParameter("imya", IfxType.Char) {Value = imya};
+                var imyaParam = new IfxParameter("imya", IfxType.Char) { Value = imya };
                 searchCom.CommandText += addingAND ? " AND" : " WHERE";
                 searchCom.CommandText += $" imya = ?";
                 searchCom.Parameters.Add(imyaParam);
                 addingAND = true;
             }
-            if( otchest != null)
+            if (otchest != null)
             {
                 var otchestParam = new IfxParameter("otchest", IfxType.Char) { Value = otchest };
                 searchCom.CommandText += addingAND ? " AND" : " WHERE";
@@ -275,7 +279,7 @@ namespace citizen_app.Controllers
             if (datRozhdFrom != null)
             {
 
-                var datRozhdFromParam = new IfxParameter("dat_rozhd", IfxType.Date) { Value = $"{datRozhdFrom.Value:dd.mm.yyyy}"};
+                var datRozhdFromParam = new IfxParameter("dat_rozhd", IfxType.Date) { Value = $"{datRozhdFrom.Value:dd.MM.yyyy}" };
                 searchCom.CommandText += addingAND ? " AND" : " WHERE";
                 searchCom.CommandText += $" dat_rozhd >= ?";
                 searchCom.Parameters.Add(datRozhdFromParam);
@@ -283,7 +287,7 @@ namespace citizen_app.Controllers
             }
             if (datRozhdTo != null)
             {
-                var datRozhdToParam = new IfxParameter("dat_rozhd", IfxType.Date) { Value = $"{datRozhdTo.Value:dd.mm.yyyy}" };
+                var datRozhdToParam = new IfxParameter("dat_rozhd", IfxType.Date) { Value = $"{datRozhdTo.Value:dd.MM.yyyy}" };
                 searchCom.CommandText += addingAND ? " AND" : " WHERE";
                 searchCom.CommandText += $" dat_rozhd <= ?";
                 searchCom.Parameters.Add(datRozhdToParam);

@@ -54,7 +54,7 @@ namespace citizen_app.Controllers
         /// New citizen value to update
         /// </param>
         /// <returns></returns>
-        bool UpdateCitizen(string id, Citizen citizen);
+        bool UpdateCitizen(int id, Citizen citizen);
 
         /// <summary>
         /// Removes citizen from database with <paramref name="id"/>
@@ -63,7 +63,7 @@ namespace citizen_app.Controllers
         /// Id of citizen to be deleted
         /// </param>
         /// <returns></returns>
-        bool DeleteCitizen(string id);
+        bool DeleteCitizen(int id);
 
 
 
