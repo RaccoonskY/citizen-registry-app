@@ -5,6 +5,6 @@ Ext.define('CitizensApp.model.Citizen', {
         { name: 'imya', type: 'string' },
         { name: 'fam', type: 'string' },
         { name: 'otchest', type: 'string' },
-        { name: 'dat_rozhd', type: 'date' }
+        { name: 'dat_rozhd', type: 'date'}
     ]
 });

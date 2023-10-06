@@ -27,9 +27,9 @@ namespace citizen_app.Controllers
         }
 
         [HttpGet]
-        public ActionResult GetAll()
+        public ActionResult GetAll(int offset = 40)
         {
-            var citizensList = context.GetCitizens();
+            var citizensList = context.GetCitizens(offset);
             return Json(citizensList, JsonRequestBehavior.AllowGet);
 
         }
@@ -42,20 +42,21 @@ namespace citizen_app.Controllers
 
         }
 
-        [HttpGet]
+        [HttpPut]
+        [Route("Citizen/Search")]
         public ActionResult Search(
             string fam = null,
             string imya = null,
             string otchest = null,
-            DateTime? datRozhdFrom = null,
-            DateTime? datRozhdTo = null) {
+            DateTime? datrozhdfrom = null,
+            DateTime? datrozhdto = null) {
 
             var citizensList = context.GetCitizens(
                 fam,
                 imya,
                 otchest,
-                datRozhdFrom,
-                datRozhdTo
+                datrozhdfrom,
+                datrozhdto
                 );
             return Json(citizensList, JsonRequestBehavior.AllowGet);
 
@@ -82,8 +83,18 @@ namespace citizen_app.Controllers
                 Fam = fam,
                 Imya = imya,
                 Otchest = otchest,
-                Dat_rozhd = datrozhd
+                Dat_rozhd = $"{datrozhd:dd.MM.yyyy}"
             });
+
+            return Json(res);
+        }
+
+
+        [HttpPost]
+        [Route("Citizen/Init")]
+        public ActionResult Init()
+        {
+            var res = context.InitializeCitizens();
 
             return Json(res);
         }
@@ -101,7 +112,7 @@ namespace citizen_app.Controllers
                 Fam = fam,
                 Imya = imya,
                 Otchest = otchest,
-                Dat_rozhd = datrozhd
+                Dat_rozhd = $"{datrozhd:dd.MM.yyyy}"
             });
 
             return Json(res);

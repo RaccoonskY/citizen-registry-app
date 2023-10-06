@@ -13,7 +13,7 @@ namespace citizen_app.Controllers
         /// Retrieves all citizens
         /// </summary>
         /// <returns></returns>
-        List<Citizen> GetCitizens();
+        List<Citizen> GetCitizens(int offset);
 
         /// <summary>
         /// Retrieves one citizen
@@ -42,7 +42,7 @@ namespace citizen_app.Controllers
         /// </summary>
         /// <param name="citizen"></param>
         /// <returns></returns>
-        bool PostCitizen(Citizen citizen);
+        int PostCitizen(Citizen citizen);
 
         /// <summary>
         /// Updates citizen with <paramref name="id"/>
@@ -64,6 +64,8 @@ namespace citizen_app.Controllers
         /// </param>
         /// <returns></returns>
         bool DeleteCitizen(int id);
+
+        int InitializeCitizens();
 
 
 

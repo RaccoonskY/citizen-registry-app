@@ -11,7 +11,7 @@ namespace citizen_app.Models
         public string Fam { get; set; }
         public string Imya { get; set; }
         public string Otchest { get; set; }
-        public DateTime Dat_rozhd { get; set; }
+        public string Dat_rozhd { get; set; }
 
 
 

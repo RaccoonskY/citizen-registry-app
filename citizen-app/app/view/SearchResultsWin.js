@@ -17,21 +17,91 @@ Ext.define('CitizensApp.view.SearchResultsWin', {
     
     layout:'fit',
 
-    items:[
-        {
-            xtype:"gridpanel",
-            store: Ext.create("CitizensApp.store.Citizens"),
-            columns: [
-                { text: "ID", dataIndex: 'id'},
-                { text: 'Имя',  dataIndex: 'imya' },
-                { text: 'Фамилия',  dataIndex: 'fam' },
-                { text: 'Отчество',  dataIndex: 'otchest', flex: 1 },
-                { text: 'Дата рождения', dataIndex: 'dat_rozhd'}
-            ],
-            height: 200,
-            width: 500,
+    constructor: function(config){
+        
+        var citizensStore = Ext.create("CitizensApp.store.Citizens");
 
+        if (config.citizens) {
+            
+            config.citizens = config.citizens.map((elem) => ({
+                id: elem.Citizen_id,
+                fam: elem.Fam,
+                imya: elem.Imya,
+                otchest: elem.Otchest,
+                dat_rozhd: `${elem.Dat_rozhd.slice(3,5)}.${elem.Dat_rozhd.slice(0,2)}.${elem.Dat_rozhd.slice(-4)}`
+            }));
+            
+            citizensStore.loadData(config.citizens);
+        }
+
+        const grid = Ext.create('Ext.grid.Panel', {
+            store: citizensStore,
+            columns: [
+                { text: 'Фамилия', dataIndex: 'fam',flex: 1  },
+                { text: 'Имя', dataIndex: 'imya', flex: 1 },
+                { text: 'Отчество', dataIndex: 'otchest', flex: 1 },
+                {
+                    text: 'Дата рождения',
+                    dataIndex: 'dat_rozhd',
+                    renderer: function (value) {
+                        // Use Ext.Date.format to format the date in 'dd-mm-yyyy' format
+                        return Ext.Date.format(value, 'd-m-Y');
+                    },
+                    flex: 1 
+                }
+            ],
+            height: 500,
+            width: 1000,
             buttons:[
+                {
+                    text:"Загрузить еще",
+                    handler: async function(){
+                        const store = grid.getStore();
+                        let citizensToAdd = null;
+                        if(config.searchBody != null){
+                            let response = await fetch(config.url+`?offset=${config.offset}`,{
+                                method: "PUT",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                    },
+                                body: config.searchBody
+                            }).
+                            then(
+                                resp=>resp.json()
+                            ).
+                            catch(()=>{
+                                return [];
+                            });
+                            citizensToAdd = response;
+                        }
+                        else{
+                            let response = await fetch(config.url+`?offset=${config.offset}`).
+                            then(
+                                resp=>resp.json()
+                            ).
+                            catch(()=>{
+                                return [];
+                            });
+                            citizensToAdd = response;
+                        }
+
+                        citizensToAdd = citizensToAdd.map((elem) => ({
+                            id: elem.Citizen_id,
+                            fam: elem.Fam,
+                            imya: elem.Imya,
+                            otchest: elem.Otchest,
+                            dat_rozhd: `${elem.Dat_rozhd.slice(3,5)}.${elem.Dat_rozhd.slice(0,2)}.${elem.Dat_rozhd.slice(-4)}`
+                        }));
+
+                        if(citizensToAdd != null && citizensToAdd.length > 0) {
+                            store.loadData(citizensToAdd, append=true); 
+                            config.offset += citizensToAdd.length;}
+                        else{
+                            alert("Данные для загрузки отсутствуют");
+                        }
+                        
+                    }
+                },
                 {
                     text:"Добавить",
                     handler: function() {
@@ -58,17 +128,34 @@ Ext.define('CitizensApp.view.SearchResultsWin', {
                 {
                     text:"Удалить",
                     handler: function() {
+
                         const grid = this.up('gridpanel');  
                         const selectedRecords = grid.getSelectionModel().getSelection();
                         const store = grid.getStore();
                         const rowIndexToDel = store.indexOf(selectedRecords[0]);
+
                         Ext.Msg.show({
                             title:'Удалить?',
                             msg: 'Вы точно хотите удалить?',
                             buttons:Ext.Msg.YES,
                             icon: Ext.Msg.QUESTION,
-                            fn: ()=>{
-                                store.removeAt(rowIndexToDel)
+                            fn: async (btn)=>{
+                                if(btn == 'yes'){
+                                    const url = "https://localhost:44335/citizen/delete?";
+                                    res = await fetch(
+                                        url+`id=${selectedRecords[0].get('id')}`,
+                                        {
+                                            method:"DELETE",
+       
+                                        }
+                                    ).
+                                    then(resp=>resp.json()).catch(res=>alert(`Не удалось удалить гражданина: ${res}`));   
+    
+                                    if(res){
+                                        store.removeAt(rowIndexToDel);
+                                    }
+                                }
+                               
                             }
                        });
 
@@ -81,10 +168,11 @@ Ext.define('CitizensApp.view.SearchResultsWin', {
                     }
                 }
             ]
-        },
+        });
+
+
+        config.items = [grid];
+        this.callParent([config]);
         
-    ],
-
-   
-
+    },
 });
