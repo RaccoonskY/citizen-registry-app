@@ -1,5 +1,10 @@
 Ext.define('CitizensApp.view.CitizenUpdateWin', {
 
+
+    requires:[
+        'CitizensApp.view.CyrillicTextField'
+    ],
+
     extend: 'Ext.window.Window',
     alias: 'widget.CitizenUpdateWin',
     xtype: 'citizen-update-win',
@@ -20,18 +25,18 @@ Ext.define('CitizensApp.view.CitizenUpdateWin', {
 
 
     items:[{
-            xtype: 'textfield',
+            xtype: 'cyrillicfield',
             fieldLabel: 'Фамилия',
             name: 'fam',
             labelAlign: 'top',
 
         }, {
-            xtype: 'textfield',
+            xtype: 'cyrillicfield',
             fieldLabel: 'Имя',
             name: 'imya',
             labelAlign: 'top',
         }, {
-            xtype: 'textfield',
+            xtype: 'cyrillicfield',
             fieldLabel: 'Отчество',
             name:'otchest',
             labelAlign: 'top',
@@ -45,46 +50,95 @@ Ext.define('CitizensApp.view.CitizenUpdateWin', {
 
     ],
 
+    
+    checkIdentical: async function(citizenToUpdate){
+        const response = await fetch("https://localhost:44335/citizen/search" +`?offset=5`,{
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                },
+            body: JSON.stringify(citizenToUpdate)
+        }). 
+        then(
+            resp=>resp.json()
+        ).
+        catch(er=>{
+            return 0;
+        });
+
+        if (response != null){
+            return response.length;
+        }
+
+    },
+
+    addNewCitizen: async function(citizenToAdd){
+        const res = await fetch(
+            'https://localhost:44335/citizen/post',
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    },
+                body: JSON.stringify(citizenToAdd)
+            }
+        ).then(resp=>resp.json()).catch(error=>alert(`Не удалось добавить гражданина: ${error}`))
+            
+        if(res){
+            var parentStore = Ext.getStore('citizenStore');
+            citizenToAdd["dat_rozhd"] = citizenToAdd.datrozhd;
+            citizenToAdd["id"] = res;
+            delete citizenToAdd["datrozhd"];
+            parentStore.add(citizenToAdd);
+        }
+    },
+
 
     listeners: {
-        close: async function (win) {
-            var famFieldVal = win.down('[name=fam]').getValue();
-            var imyaFieldVal = win.down('[name=imya]').getValue();
-            var otchestFieldVal = win.down('[name=otchest]').getValue();
-            var datRozhdFieldVal = win.down('[name=dat_rozhd]').getValue();
-            
-            if (famFieldVal && imyaFieldVal && otchestFieldVal && datRozhdFieldVal){
+        beforeclose: function(window) {
 
+            var famFieldVal = window.down('[name=fam]').getValue();
+            var imyaFieldVal = window.down('[name=imya]').getValue();
+            var otchestFieldVal = window.down('[name=otchest]').getValue();
+            var datRozhdFieldVal = window.down('[name=dat_rozhd]').getValue();
+            if (famFieldVal && imyaFieldVal && otchestFieldVal && datRozhdFieldVal){
                 var newRecord = {
                     fam: famFieldVal,
                     imya: imyaFieldVal,
                     otchest: otchestFieldVal,
                     datrozhd: datRozhdFieldVal
                 };
-
-                const res = await fetch(
-                    'https://localhost:44335/citizen/post',
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            },
-                        body: JSON.stringify(newRecord)
+                Ext.Msg.confirm("Вы уверены?", "Вы уверены, что хотите добавить гражданина?", async (answer) =>{
+                    if (answer == "yes") {
+                        const identicals = this.checkIdentical(newRecord);
+                        if(identicals != 0){
+                            Ext.Msg.confirm("Вы уверены?", "Идетичные граждане уже существуют. Вы уверены, что хотите добавить?", 
+                            async (answer) => {
+                                if (answer == "yes") {
+                                    await this.addNewCitizen(newRecord);
+                                    alert("Добавление успешно");
+                                }
+                                else{
+                                    return 0;
+                                }       
+                            }); 
+                        } else {
+                            this.addNewCitizen(newRecord);
+                            alert("Добавление успешно");
+                        }
+                        window.events.beforeclose.clearListeners();
+                            window.close();
                     }
-                ).then(resp=>resp.json()).catch(error=>alert(`Не удалось добавить гражданина: ${error}`))
-                    
-                if(res){
-                    var parentStore = Ext.getStore('citizenStore');
-                    newRecord["dat_rozhd"] = newRecord.datrozhd;
-                    newRecord["id"] = res;
-                    delete newRecord["datrozhd"];
-                    parentStore.add(newRecord);
-                }
-
+                });    
             }
-            else{
-                alert("Заполните все поля!");
-            }     
+            else if (famFieldVal || imyaFieldVal || otchestFieldVal || datRozhdFieldVal){
+                Ext.Msg.confirm("Вы уверены?", "Вы уверены, что хотите закрыть? Заполненные поля не сохранятся!", function(answer) {
+                    if (answer == "yes") {
+                        window.events.beforeclose.clearListeners();
+                        window.close();
+                    }
+                }); 
+            }
         }
     },
 
@@ -92,7 +146,7 @@ Ext.define('CitizensApp.view.CitizenUpdateWin', {
     constructor: function(config){
         if(config.citizenToUpdate)
         config.listeners = {
-            close: async function(win){
+            beforeclose: async function(win){
                 
                 var famFieldVal = win.down('[name=fam]').getValue();
                 var imyaFieldVal = win.down('[name=imya]').getValue();

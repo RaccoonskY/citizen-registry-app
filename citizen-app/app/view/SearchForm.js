@@ -94,8 +94,9 @@ Ext.define('CitizensApp.view.SearchForm', {
                     ||queries.datrozhdto){
                     
                     const urlQueries = {
-                       
                     };        
+                    url += "search";
+
 
                     for (const key in queries) {
                         if (Object.hasOwnProperty.call(queries, key)) {
@@ -105,10 +106,8 @@ Ext.define('CitizensApp.view.SearchForm', {
                             }      
                         }
                     }
-
-
-
-                    const response = await fetch(url + 'search',{
+                    
+                    const response = await fetch(url +`?offset=${offset}`,{
                         method: "PUT",
                         headers: {
                             "Content-Type": "application/json",

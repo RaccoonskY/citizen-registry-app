@@ -29,6 +29,7 @@ namespace citizen_app.Controllers
         /// </summary>
         /// <returns></returns>
         List<Citizen> GetCitizens(
+            int offset = 0,
             string fam = null, 
             string imya = null, 
             string otchest = null, 

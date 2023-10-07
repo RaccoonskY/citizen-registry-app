@@ -136,7 +136,7 @@ Ext.define('CitizensApp.view.SearchResultsWin', {
 
                         Ext.Msg.show({
                             title:'Удалить?',
-                            msg: 'Вы точно хотите удалить?',
+                            msg: `Вы точно хотите удалить\n ${selectedRecords[0].get('fam')} ${selectedRecords[0].get('imya')} ${selectedRecords[0].get('otchest')}?`,
                             buttons:Ext.Msg.YES,
                             icon: Ext.Msg.QUESTION,
                             fn: async (btn)=>{

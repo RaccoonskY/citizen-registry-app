@@ -27,7 +27,7 @@ namespace citizen_app.Controllers
         }
 
         [HttpGet]
-        public ActionResult GetAll(int offset = 40)
+        public ActionResult GetAll(int offset = 0)
         {
             var citizensList = context.GetCitizens(offset);
             return Json(citizensList, JsonRequestBehavior.AllowGet);
@@ -45,6 +45,7 @@ namespace citizen_app.Controllers
         [HttpPut]
         [Route("Citizen/Search")]
         public ActionResult Search(
+            int offset = 0,
             string fam = null,
             string imya = null,
             string otchest = null,
@@ -52,6 +53,7 @@ namespace citizen_app.Controllers
             DateTime? datrozhdto = null) {
 
             var citizensList = context.GetCitizens(
+                offset,
                 fam,
                 imya,
                 otchest,

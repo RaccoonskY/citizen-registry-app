@@ -120,6 +120,7 @@ namespace citizen_app.Controllers
 
         //GET/PARAMS
         public List<Citizen> GetCitizens(
+            int offset,
             string fam = null,
             string imya = null,
             string otchest = null,
@@ -127,7 +128,7 @@ namespace citizen_app.Controllers
             DateTime? datrozhdto = null)
         {
             
-            var sqlCom = "SELECT * FROM citizen";
+            var sqlCom = $"SELECT SKIP {offset} FIRST 40 * FROM citizen";
 
             using (var conn = new IfxConnection(ConnectionString))
             using (var selectSQLCommand = BuildCommandSQ(sqlCom, conn, fam, imya, otchest, datrozhdfrom, datrozhdto))
@@ -182,7 +183,7 @@ namespace citizen_app.Controllers
                     cmd.Parameters.Add(datRozhdParam);
                     cmd.ExecuteNonQuery();
 
-                    cmd.CommandText = "SELECT MAX(citizen_id) FROM citizen";
+                    cmd.CommandText = "SELECT DBINFO('sqlca.sqlerrd1') AS last_serial FROM citizen";
                     cmd.Parameters.Clear();
                     using (var dbReader = cmd.ExecuteReader(CommandBehavior.Default))
                     {
@@ -274,6 +275,7 @@ namespace citizen_app.Controllers
 
             if (fam != null)
             {
+
                 var famParam = new IfxParameter("fam", IfxType.Char) { Value = $"{fam}%" };
                 searchCom.CommandText += $" WHERE fam LIKE ?";
                 searchCom.Parameters.Add(famParam);
