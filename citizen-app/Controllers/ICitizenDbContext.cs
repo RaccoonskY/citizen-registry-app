@@ -65,6 +65,7 @@ namespace citizen_app.Controllers
         /// </param>
         /// <returns></returns>
         bool DeleteCitizen(int id);
+        int GetIdenticalsNumber(Citizen citizen);
 
         int InitializeCitizens();
 

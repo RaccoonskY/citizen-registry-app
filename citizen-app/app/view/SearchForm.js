@@ -21,7 +21,7 @@ Ext.define('CitizensApp.view.SearchForm', {
             fieldLabel: 'Фамилия',
             name: 'fam',
             labelAlign: 'top',
-            regex: /^[А-Яа-я\s-]*$/,
+            regex: /^[А-Яа-я\s-*]*$/,
             regexText: 'Только заглавные символы кириллицы, - и пробел.'
 
         }, {
@@ -29,28 +29,28 @@ Ext.define('CitizensApp.view.SearchForm', {
             fieldLabel: 'Имя',
             name: 'imya',
             labelAlign: 'top',
-            regex: /^[А-Яа-я\s-]*$/,
+            regex: /^[А-Яа-я\s-*]*$/,
             regexText: 'Только заглавные символы кириллицы, - и пробел.'
         }, {
             xtype: 'cyrillicfield',
             fieldLabel: 'Отчество',
             name:'otchest',
             labelAlign: 'top',
-            regex: /^[А-Яа-я\s-]*$/,
+            regex: /^[А-Яа-я\s-*]*$/,
             regexText: 'Только заглавные символы кириллицы, - и пробел.'
         }, {
             xtype: 'datefield',
             fieldLabel: 'Возраст с',
             name:'rozhd_ot',
             labelAlign: 'top',
-            dateFormat: 'd-m-Y'
+            format: 'd.m.Y'
 
         },{
             xtype: 'datefield',
             fieldLabel: 'Возраст по',
             name:'rozhd_po',
             labelAlign: 'top',
-            dateFormat: 'd-m-Y'
+            format: 'd.m.Y'
         },
         {
             xtype:'button',
@@ -118,7 +118,7 @@ Ext.define('CitizensApp.view.SearchForm', {
                         resp=>resp.json()
                     ).
                     catch(er=>{
-                        alert("Такого гражданина нет");
+                        return [];
                     });
 
                     urlQueriesToResults = JSON.stringify(urlQueries);
@@ -135,7 +135,7 @@ Ext.define('CitizensApp.view.SearchForm', {
                 }
                 
                 offset += res.length < 40? res.length : 40; 
-
+ 
 
                 /*
                 res = [
@@ -161,13 +161,16 @@ Ext.define('CitizensApp.view.SearchForm', {
                         "Dat_rozhd": "1968.01.11"
                     }
                 ]
+                offset = 0;
+                url= null;
+                urlQueriesToResults = null;
                 */
-
-                alert(`OFFSET:${offset} URL:${url}`);
+               
                 Ext.widget('SearchResultsWin',{
                     citizens: res,
                     offset: offset,
                     url:url,
+                    empty: res.length == 0,
                     searchBody: urlQueriesToResults
                 }).show();
  

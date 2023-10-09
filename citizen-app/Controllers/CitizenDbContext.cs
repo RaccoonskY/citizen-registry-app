@@ -163,6 +163,36 @@ namespace citizen_app.Controllers
             }
         }
 
+        public int GetIdenticalsNumber(Citizen citizen)
+        {
+            var sqlCom = $"SELECT COUNT(*) FROM citizen WHERE fam = ? AND imya = ? AND otchest = ? AND dat_rozhd = ?";
+            var famParam = new IfxParameter("fam", IfxType.Char) { Value = citizen.Fam };
+            var imyaParam = new IfxParameter("imya", IfxType.Char) { Value = citizen.Imya };
+            var otchestParam = new IfxParameter("otchest", IfxType.Char) { Value = citizen.Otchest };
+            var datRozhdParam = new IfxParameter("dat_rozhd", IfxType.Date) { Value = $"{citizen.Dat_rozhd:dd.MM.yyyy}" };
+            using (var conn = new IfxConnection(ConnectionString))
+            using (var cmd = new IfxCommand(sqlCom, conn))
+            {
+                conn.Open();
+                cmd.Parameters.Add(famParam);
+                cmd.Parameters.Add(imyaParam);
+                cmd.Parameters.Add(otchestParam);
+                cmd.Parameters.Add(datRozhdParam);
+                using (var dbReader = cmd.ExecuteReader(CommandBehavior.Default))
+                {
+
+                    if (!dbReader.HasRows)
+                        return 0;
+
+                    dbReader.Read();
+                    var count = dbReader.GetString(0);
+                    dbReader.Close();
+                    return int.Parse(count);
+
+                }
+            }
+        }
+
         public int PostCitizen(Citizen citizen)
         {
             using (var conn = new IfxConnection(ConnectionString))
@@ -276,24 +306,24 @@ namespace citizen_app.Controllers
             if (fam != null)
             {
 
-                var famParam = new IfxParameter("fam", IfxType.Char) { Value = $"{fam}%" };
-                searchCom.CommandText += $" WHERE fam LIKE ?";
+                var famParam = new IfxParameter("fam", IfxType.Char) { Value = $"{fam}" };
+                searchCom.CommandText += $" WHERE fam MATCHES ?";
                 searchCom.Parameters.Add(famParam);
                 addingAND = true;
             }
             if (imya != null)
             {
-                var imyaParam = new IfxParameter("imya", IfxType.Char) { Value = $"{imya}%" };
+                var imyaParam = new IfxParameter("imya", IfxType.Char) { Value = $"{imya}" };
                 searchCom.CommandText += addingAND ? " AND" : " WHERE";
-                searchCom.CommandText += $" imya LIKE ?";
+                searchCom.CommandText += $" imya MATCHES ?";
                 searchCom.Parameters.Add(imyaParam);
                 addingAND = true;
             }
             if (otchest != null)
             {
-                var otchestParam = new IfxParameter("otchest", IfxType.Char) { Value = $"{otchest}%" };
+                var otchestParam = new IfxParameter("otchest", IfxType.Char) { Value = $"{otchest}" };
                 searchCom.CommandText += addingAND ? " AND" : " WHERE";
-                searchCom.CommandText += $" otchest LIKE ?";
+                searchCom.CommandText += $" otchest MATCHES ?";
                 searchCom.Parameters.Add(otchestParam);
                 addingAND = true;
             }

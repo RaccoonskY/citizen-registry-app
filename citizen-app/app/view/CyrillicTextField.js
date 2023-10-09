@@ -26,7 +26,7 @@ Ext.define('CitizensApp.view.CyrillicTextField', {
             charCode -= 32; // Convert to uppercase by subtracting 32
             this.setRawValue(this.getRawValue() + String.fromCharCode(charCode));
         }
-        else if (charCode !== 32 && charCode !== 45 && (charCode < 1040 || charCode > 1103)) { // Disallow Latin and non-Cyrillic characters
+        else if (charCode !== 42 && charCode !== 32 && charCode !== 45 && (charCode < 1040 || charCode > 1103)) { // Disallow Latin and non-Cyrillic characters
             e.stopEvent(); // Prevent input of non-allowed characters
             alert("В поля данных возможно водить только заглавные символы кириллицы, тире и пробел!\nПопробуйте сменить язык!")
         }

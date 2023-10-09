@@ -90,6 +90,24 @@ namespace citizen_app.Controllers
 
             return Json(res);
         }
+        [HttpPut]
+        [Route("Citizen/Identicals")]
+        public ActionResult GetIdenticals(
+            string fam,
+            string imya,
+            string otchest,
+            DateTime datrozhd)
+        {
+            var res = context.GetIdenticalsNumber(new Models.Citizen()
+            {
+                Fam = fam,
+                Imya = imya,
+                Otchest = otchest,
+                Dat_rozhd = $"{datrozhd:dd.MM.yyyy}"
+            });
+
+            return Json(res);
+        }
 
 
         [HttpPost]

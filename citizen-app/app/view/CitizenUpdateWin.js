@@ -45,31 +45,46 @@ Ext.define('CitizensApp.view.CitizenUpdateWin', {
             fieldLabel: 'Дата рождения',
             name:'dat_rozhd',
             labelAlign: 'top',
+            format: 'd.m.Y'
 
         }
 
     ],
 
     
-    checkIdentical: async function(citizenToUpdate){
-        const response = await fetch("https://localhost:44335/citizen/search" +`?offset=5`,{
+    compareDTOs: function(citizen1,citizen2){
+        let objEqual = true;
+        const keys = ["id", "imya", "fam", "otchest", "datrozhd"];
+        try{
+            keys.forEach(key => {
+                if(citizen1[key].toString() != citizen2[key].toString()){
+                    objEqual = false;
+                }
+            });
+        } catch{
+            return false;
+        }
+       
+        return objEqual;
+    },
+
+    checkIdentical: function (citizenToUpdate, callback) {
+        const checkDTO = citizenToUpdate;
+        fetch("https://localhost:44335/citizen/getidenticals", {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
-                },
-            body: JSON.stringify(citizenToUpdate)
-        }). 
-        then(
-            resp=>resp.json()
-        ).
-        catch(er=>{
-            return 0;
+            },
+            body: JSON.stringify(checkDTO)
+        })
+        .then(response => response.json())
+        .then(data => {
+            const identicals = data ? data: 0;
+            callback(identicals);
+        })
+        .catch(error => {
+            callback(0);
         });
-
-        if (response != null){
-            return response.length;
-        }
-
     },
 
     addNewCitizen: async function(citizenToAdd){
@@ -93,102 +108,175 @@ Ext.define('CitizensApp.view.CitizenUpdateWin', {
         }
     },
 
+    updateCitizen: async function(citizenToUpdate){
+        const res = await fetch(
+            'https://localhost:44335/citizen/update',
+            {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    },
 
-    listeners: {
-        beforeclose: function(window) {
+                body: JSON.stringify(citizenToUpdate)
+            }
+        ).then(resp=>resp.json()).catch(error=>alert(`Не удалось обновить гражданина гражданина: ${error}`))
+            
+        if(res){
+            var parentStore = Ext.getStore('citizenStore');
+            var elemToUpdate = parentStore.getById(this.citizenToUpdate.id);   
 
-            var famFieldVal = window.down('[name=fam]').getValue();
-            var imyaFieldVal = window.down('[name=imya]').getValue();
-            var otchestFieldVal = window.down('[name=otchest]').getValue();
-            var datRozhdFieldVal = window.down('[name=dat_rozhd]').getValue();
-            if (famFieldVal && imyaFieldVal && otchestFieldVal && datRozhdFieldVal){
-                var newRecord = {
-                    fam: famFieldVal,
-                    imya: imyaFieldVal,
-                    otchest: otchestFieldVal,
-                    datrozhd: datRozhdFieldVal
-                };
-                Ext.Msg.confirm("Вы уверены?", "Вы уверены, что хотите добавить гражданина?", async (answer) =>{
-                    if (answer == "yes") {
-                        const identicals = this.checkIdentical(newRecord);
-                        if(identicals != 0){
-                            Ext.Msg.confirm("Вы уверены?", "Идетичные граждане уже существуют. Вы уверены, что хотите добавить?", 
-                            async (answer) => {
-                                if (answer == "yes") {
-                                    await this.addNewCitizen(newRecord);
-                                    alert("Добавление успешно");
-                                }
-                                else{
-                                    return 0;
-                                }       
-                            }); 
-                        } else {
-                            this.addNewCitizen(newRecord);
-                            alert("Добавление успешно");
-                        }
-                        window.events.beforeclose.clearListeners();
-                            window.close();
-                    }
-                });    
-            }
-            else if (famFieldVal || imyaFieldVal || otchestFieldVal || datRozhdFieldVal){
-                Ext.Msg.confirm("Вы уверены?", "Вы уверены, что хотите закрыть? Заполненные поля не сохранятся!", function(answer) {
-                    if (answer == "yes") {
-                        window.events.beforeclose.clearListeners();
-                        window.close();
-                    }
-                }); 
-            }
+            elemToUpdate.set('fam', citizenToUpdate.fam);
+            elemToUpdate.set('imya', citizenToUpdate.imya);
+            elemToUpdate.set('otchest', citizenToUpdate.otchest);
+            elemToUpdate.set('dat_rozhd', citizenToUpdate.datrozhd);
+
+            elemToUpdate.commit();
         }
     },
 
+    getNewCitizenDTO: function(win){
+        var famFieldVal = win.down('[name=fam]').getValue();
+        var imyaFieldVal = win.down('[name=imya]').getValue();
+        var otchestFieldVal = win.down('[name=otchest]').getValue();
+        var datRozhdFieldVal = win.down('[name=dat_rozhd]').getValue();
 
-    constructor: function(config){
-        if(config.citizenToUpdate)
-        config.listeners = {
-            beforeclose: async function(win){
-                
-                var famFieldVal = win.down('[name=fam]').getValue();
-                var imyaFieldVal = win.down('[name=imya]').getValue();
-                var otchestFieldVal = win.down('[name=otchest]').getValue();
-                var datRozhdFieldVal = win.down('[name=dat_rozhd]').getValue();
 
-                var newRecord = {
-                    id: config.citizenToUpdate.id,
-                    fam: famFieldVal,
-                    imya: imyaFieldVal,
-                    otchest: otchestFieldVal,
-                    datrozhd: datRozhdFieldVal
-                };
+        var newRecord = {
+            fam: famFieldVal,
+            imya: imyaFieldVal,
+            otchest: otchestFieldVal,
+            datrozhd: datRozhdFieldVal
+        };
 
-                const res = await fetch(
-                    'https://localhost:44335/citizen/update',
-                    {
-                        method: "PUT",
-                        headers: {
-                            "Content-Type": "application/json",
-                            },
+        return newRecord;
+    },
+    checkEmptyDTO: function(dto){
+        return  dto['fam'] != "" && dto['imya'] != "" && dto['otchest'] != "" && dto["datrozhd"] != null ;
+    },
+    checkFilledDTO: function(dto){
+        return  dto['fam'] != "" || dto['imya'] != "" || dto['otchest'] != "" || dto["datrozhd"] != null;
+    },
 
-                        body: JSON.stringify(newRecord)
-                    }
-                ).then(resp=>resp.json()).catch(error=>alert(`Не удалось обновить гражданина гражданина: ${error}`))
+    addNewHandler: function(window){
+        let newRecord = this.getNewCitizenDTO(window);
+
+    },
+
+    updateHandler:   function(window){
+        const oldRecord = this.citizenToUpdate;
+        const updatedRecord = this.getNewCitizenDTO(window);
+        updatedRecord["id"] = oldRecord.id;
+        oldRecord["datrozhd"] = oldRecord.dat_rozhd;
+
+        const areEqual = this.compareDTOs(oldRecord,updatedRecord);
+
+        if(!areEqual ){
+            let exiting = true;
+            if(this.checkEmptyDTO(updatedRecord)){
+                const updatingConfirm = confirm(`Вы точно хотите обновить гражданина ${oldRecord.fam} ${oldRecord.imya} ${oldRecord.otchest}?`)
+                if(updatingConfirm){
+                    this.checkIdentical(updatedRecord, function(identicals){
+                        if(identicals > 0){
+                            const identicalsConfirm = confirm(`Идетичные граждане уже существуют: ${identicals}.\nВы уверены, что хотите изменить?`);
+                            if(identicalsConfirm){
+                                window.updateCitizen(updatedRecord);
+                                alert('Гражданин успешно изменен');
+                            } else{
+                                exitingConfirm = confirm("Вы хотите выйти?\nИзменения пропадут.");
+                                if (exitingConfirm){
+                                    exiting = true;
+                                } 
+                                else{
+                                    Ext.widget("CitizenUpdateWin",{  
+                                        citizenToUpdate: oldRecord,
+                                        updating: true
+                                    });
+                                }
+                            }
+                        }
+                        else{
+                            window.updateCitizen(updatedRecord);
+                            alert('Гражданин успешно изменен');
+                        }
+                    })
                     
-                if(res){
-                    var parentStore = Ext.getStore('citizenStore');
-                    var elemToUpdate = parentStore.getById(config.citizenToUpdate.id);   
-
-                    elemToUpdate.set('fam', famFieldVal);
-                    elemToUpdate.set('imya', imyaFieldVal);
-                    elemToUpdate.set('otchest', otchestFieldVal);
-                    elemToUpdate.set('dat_rozhd', datRozhdFieldVal);
-    
-                    elemToUpdate.commit();
                 }
-    
+                else{
+                    exitingConfirm = confirm("Вы хотите выйти?\nИзменения пропадут.");
+                    if (!exitingConfirm){
+                        return false;
+                    }
+                }
+                if(!exiting) return false;
+
+            } else{
+                exitingConfirm = confirm("У вас есть незаполненные поля, изменения не произойдут, если вы выйдите. Выйти?");
+                if (!exitingConfirm){
+                    return false;
+                }
             }
-        }
+            
+        }    
+    },
+   
+
+
+    listeners: {
+        beforeclose: function (window) {
+            const updatedRecord = this.getNewCitizenDTO(window);
+            if (window.checkEmptyDTO(updatedRecord)) {
                 
+                updatedRecord["dat_rozhd"] = updatedRecord.datrozhd;
+                const updatingConfirm = confirm(`Вы точно хотите добавить гражданина ${updatedRecord.fam} ${updatedRecord.imya} ${updatedRecord.otchest}?`);
+                if (updatingConfirm) {
+                    this.checkIdentical(updatedRecord, function (identicals) {
+                        if (identicals > 0) {
+                            const identicalsConfirm = confirm(`Идентичные граждане уже существуют: ${identicals}.\nВы уверены, что хотите добавить?`);
+                            if (identicalsConfirm) {
+                                window.addNewCitizen(updatedRecord);
+                                alert('Гражданин успешно добавлен');
+                            }
+                            else{
+                                exitingConfirm = confirm("Вы хотите выйти?\nИзменения пропадут.");
+                                if (exitingConfirm){
+                                    return false;
+                                } 
+                                else{
+                                    Ext.widget("CitizenUpdateWin",{  
+                                        citizenToUpdate: updatedRecord,
+                                    });
+                                }
+                            }
+                        } else {
+                            window.addNewCitizen(updatedRecord);
+                            alert('Гражданин успешно добавлен');
+                        }
+                    });
+                } else {
+                    const exitingConfirm = confirm("Вы хотите выйти?\nИзменения пропадут.");
+                    if (!exitingConfirm) {
+                        return false;
+                    }
+                }
+            } else if (window.checkFilledDTO(updatedRecord)) {
+                const exitingConfirm = confirm("У вас есть незаполненные поля, изменения не произойдут, если вы выйдите. Выйти?");
+                if (!exitingConfirm) {
+                    return false;
+                }
+            }
+        },
+    },
+    
+
+    constructor:  function(config){
+        if(config.citizenToUpdate && config.updating){
+            config.listeners = {
+                beforeclose: this.updateHandler
+            }
+                
+        }    
         this.callParent([config]);
+        this.initConfig(config);
 
         if (config.citizenToUpdate) {
             this.items.each(function (item) {
