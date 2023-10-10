@@ -325,6 +325,8 @@ namespace citizen_app.Controllers
                 searchCom.CommandText += addingAND ? " AND" : " WHERE";
                 searchCom.CommandText += $" otchest MATCHES ?";
                 searchCom.Parameters.Add(otchestParam);
+
+
                 addingAND = true;
             }
             if (datRozhdFrom != null)

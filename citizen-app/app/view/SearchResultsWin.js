@@ -32,6 +32,8 @@ Ext.define('CitizensApp.view.SearchResultsWin', {
                 dat_rozhd: `${elem.Dat_rozhd.slice(3,5)}.${elem.Dat_rozhd.slice(0,2)}.${elem.Dat_rozhd.slice(-4)}`
             }));
             citizensStore.loadData(config.citizens);
+
+            
         }
 
         const grid = Ext.create('Ext.grid.Panel', {
@@ -190,14 +192,29 @@ Ext.define('CitizensApp.view.SearchResultsWin', {
             const delBtn = toolbar.getComponent('delBtn');
             const printBtn = toolbar.getComponent('printBtn');
 
-            const isEmpty = citizensStore.getCount() === 0;
+            const isEmpty = true;
+            loadBtn.setDisabled(false);
+            printBtn.setDisabled(false);
+            changeBtn.setDisabled(isEmpty);
+            delBtn.setDisabled(isEmpty);
+        });
+
+        grid.on('selectionchange', function () {
+            const toolbar = grid.getDockedItems('toolbar[dock="bottom"]')[0];
+            
+            const loadBtn = toolbar.getComponent('loadBtn');
+            const changeBtn = toolbar.getComponent('changeBtn');
+            const delBtn = toolbar.getComponent('delBtn');
+            const printBtn = toolbar.getComponent('printBtn');
+            
+            const selectedRecords = grid.getSelectionModel().getSelection();
+            const isEmpty = selectedRecords.length === 0;
+            
             loadBtn.setDisabled(isEmpty);
             changeBtn.setDisabled(isEmpty);
             delBtn.setDisabled(isEmpty);
             printBtn.setDisabled(isEmpty);
         });
-
-
 
         config.items = [grid];
         this.callParent([config]);

@@ -1,7 +1,7 @@
-Ext.define('CitizensApp.view.CyrillicTextField', {
+Ext.define('CitizensApp.view.CyrillicTextFieldSearch', {
     extend: 'Ext.form.field.Text',
-    alias: 'widget.cyrillictextfield',
-    xtype: 'cyrillicfield',
+    alias: 'widget.cyrillictextfieldsearch',
+    xtype: 'cyrillicfieldsearch',
 
 
     initComponent: function () {  
@@ -14,12 +14,13 @@ Ext.define('CitizensApp.view.CyrillicTextField', {
         this.callParent(arguments);
         
         this.inputEl.on('keypress', this.cyrillicInputFilter, this);
-        
     },
 
+  
 
     cyrillicInputFilter: function (e) {
         var charCode = e.getCharCode();
+        const allowedSymbols = ['*', '?', '[',']','^','\\'];
         const symbolFromCode = String.fromCharCode(charCode);
 
         // Перевод из нижнего регистра в вверхний
@@ -28,7 +29,7 @@ Ext.define('CitizensApp.view.CyrillicTextField', {
             charCode -= 32; // сделать toUpperCase() посредством вычета кода символа
             this.setRawValue(this.getRawValue() + String.fromCharCode(charCode));
         }
-        else if ((charCode < 1040 || charCode > 1103) && charCode !== 32 && charCode !== 45) { // запретить все латинские символы кроме специальных
+        else if ((charCode < 1040 || charCode > 1103) && !(allowedSymbols.includes(symbolFromCode))) { // запретить все латинские символы кроме специальных
             e.stopEvent(); // Предотвратить ввод символа
             alert("В поля данных возможно водить только заглавные символы кириллицы, тире и пробел!\nПопробуйте сменить язык!")
         }
@@ -53,4 +54,7 @@ Ext.define('CitizensApp.view.CyrillicTextField', {
 
         }
     },
+
+
+    
 });

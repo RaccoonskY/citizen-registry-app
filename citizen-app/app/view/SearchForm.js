@@ -3,7 +3,7 @@ Ext.define('CitizensApp.view.SearchForm', {
 
     requires:[
         'CitizensApp.view.SearchResultsWin',
-        'CitizensApp.view.CyrillicTextField'
+        'CitizensApp.view.CyrillicTextFieldSearch'
     ],
     extend: 'Ext.form.Panel',
     alias: 'widget.SearchForm',
@@ -17,27 +17,27 @@ Ext.define('CitizensApp.view.SearchForm', {
 
 
     items:[{
-            xtype: 'cyrillicfield',
+            xtype: 'cyrillicfieldsearch',
             fieldLabel: 'Фамилия',
             name: 'fam',
             labelAlign: 'top',
-            regex: /^[А-Яа-я\s-*]*$/,
-            regexText: 'Только заглавные символы кириллицы, - и пробел.'
+            regex: /^[А-Яа-я\s-*?\[\]^\\]*$/,
+            regexText: 'Только заглавные символы кириллицы, -, пробел и []*\\^?.'
 
         }, {
-            xtype: 'cyrillicfield',
+            xtype: 'cyrillicfieldsearch',
             fieldLabel: 'Имя',
             name: 'imya',
             labelAlign: 'top',
-            regex: /^[А-Яа-я\s-*]*$/,
-            regexText: 'Только заглавные символы кириллицы, - и пробел.'
+            regex: /^[А-Яа-я\s-*?\[\]^\\]*$/,
+            regexText: 'Только заглавные символы кириллицы, -, пробел и []*\\^?.'
         }, {
-            xtype: 'cyrillicfield',
+            xtype: 'cyrillicfieldsearch',
             fieldLabel: 'Отчество',
             name:'otchest',
             labelAlign: 'top',
-            regex: /^[А-Яа-я\s-*]*$/,
-            regexText: 'Только заглавные символы кириллицы, - и пробел.'
+            regex: /^[А-Яа-я\s-*?\[\]^\\]*$/,
+            regexText: 'Только заглавные символы кириллицы, -, пробел и []*\\^?.'
         }, {
             xtype: 'datefield',
             fieldLabel: 'Возраст с',
