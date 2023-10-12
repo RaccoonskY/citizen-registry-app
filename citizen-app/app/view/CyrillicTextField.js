@@ -30,7 +30,7 @@ Ext.define('CitizensApp.view.CyrillicTextField', {
         }
         else if ((charCode < 1040 || charCode > 1103) && charCode !== 32 && charCode !== 45) { // запретить все латинские символы кроме специальных
             e.stopEvent(); // Предотвратить ввод символа
-            alert("В поля данных возможно водить только заглавные символы кириллицы, тире и пробел!\nПопробуйте сменить язык!")
+            Ext.Msg.alert("Неподходящий символ","В поля данных возможно водить только заглавные символы кириллицы, тире и пробел!");
         }
         else if (charCode === 32 || charCode === 45){
             const curString = this.getRawValue();
@@ -38,7 +38,7 @@ Ext.define('CitizensApp.view.CyrillicTextField', {
             
             if (curString.length == 0 || curString.includes(" ")){
                 e.stopEvent();
-                alert("Пробелы и тире разрешается ставить только в середине.\n Возможен только 1 пробел.");
+                Ext.Msg.alert("Неподходящий символ","Пробелы и тире разрешается ставить только в середине.\n Возможен только 1 пробел.");
             }
             else if(lastChar == ' ' || lastChar == '-')
             {

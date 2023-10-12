@@ -3,7 +3,8 @@ Ext.define('CitizensApp.view.SearchForm', {
 
     requires:[
         'CitizensApp.view.SearchResultsWin',
-        'CitizensApp.view.CyrillicTextFieldSearch'
+        'CitizensApp.view.CyrillicTextFieldSearch',
+        'CitizensApp.controller.CitizenRequests'
     ],
     extend: 'Ext.form.Panel',
     alias: 'widget.SearchForm',
@@ -14,8 +15,7 @@ Ext.define('CitizensApp.view.SearchForm', {
         type: 'vbox',
         align: 'center'
     },
-
-
+    
     items:[{
             xtype: 'cyrillicfieldsearch',
             fieldLabel: 'Фамилия',
@@ -43,34 +43,36 @@ Ext.define('CitizensApp.view.SearchForm', {
             fieldLabel: 'Возраст с',
             name:'rozhd_ot',
             labelAlign: 'top',
-            format: 'd.m.Y'
+            format: 'd.m.Y',
+            maxValue: new Date()
 
         },{
             xtype: 'datefield',
             fieldLabel: 'Возраст по',
             name:'rozhd_po',
             labelAlign: 'top',
-            format: 'd.m.Y'
+            format: 'd.m.Y',
+            maxValue: new Date()
         },
         {
             xtype:'button',
             text: 'Поиск',
             align: 'center',
 
-            handler: async ()=>{
-                let url = 'https://localhost:44335/citizen/';
-                let offset = 0;
-
-                function formatDateToDDMMYYYY(date) {
-                    if(!date){
-                        return null
-                    }
-                    const dd = String(date.getDate()).padStart(2, '0');
-                    const mm = String(date.getMonth() + 1).padStart(2, '0');
-                    const yyyy = date.getFullYear();
-                
-                    return `${dd}.${mm}.${yyyy}`;
+            formatDateToDDMMYYYY: function (date) {
+                if(!date){
+                    return null
                 }
+                const dd = String(date.getDate()).padStart(2, '0');
+                const mm = String(date.getMonth() + 1).padStart(2, '0');
+                const yyyy = date.getFullYear();
+            
+                return `${dd}.${mm}.${yyyy}`;
+            },
+
+            handler: async function(){
+                citizensRequests = CitizensApp.controller.CitizenRequests;
+                let offset = 0;
 
                 const datfrom = Ext.ComponentQuery.query('[name=rozhd_ot]')[0].getValue();
                 const datto = Ext.ComponentQuery.query('[name=rozhd_po]')[0].getValue();
@@ -79,13 +81,14 @@ Ext.define('CitizensApp.view.SearchForm', {
                     fam: Ext.ComponentQuery.query('[name=fam]')[0].getValue(),
                     imya: Ext.ComponentQuery.query('[name=imya]')[0].getValue(),
                     otchest: Ext.ComponentQuery.query('[name=otchest]')[0].getValue(),
-                    datrozhdfrom: formatDateToDDMMYYYY(datfrom),
-                    datrozhdto: formatDateToDDMMYYYY(datto),
+                    datrozhdfrom: this.formatDateToDDMMYYYY(datfrom),
+                    datrozhdto: this.formatDateToDDMMYYYY(datto),
                 }
                 var res = [];
                 
                 let urlQueriesToResults = null;
-                
+                let urlToPass = citizensRequests.url;
+                /*
                 if (
                     queries.fam
                     ||queries.imya
@@ -95,81 +98,42 @@ Ext.define('CitizensApp.view.SearchForm', {
                     
                     const urlQueries = {
                     };        
-                    url += "search";
-
 
                     for (const key in queries) {
                         if (Object.hasOwnProperty.call(queries, key)) {
                             const element = queries[key];
-                            if(element != null && element != "") {
+                            if(element != null && element != "") {  
                                 urlQueries[key] = element;
                             }      
                         }
                     }
                     
-                    const response = await fetch(url +`?offset=${offset}`,{
-                        method: "PUT",
-                        headers: {
-                            "Content-Type": "application/json",
-                            },
-                        body: JSON.stringify(urlQueries)
-                    }).
-                    then(
-                        resp=>resp.json()
-                    ).
-                    catch(er=>{
-                        return [];
-                    });
+                    const response = await citizensRequests.searchCitizens(urlQueries, offset);
 
                     urlQueriesToResults = JSON.stringify(urlQueries);
                     res = response;
-
+                    urlToPass+='search';
                 } else {
-                    url+='getall';
-                    const response = await fetch(url+`?offset=${offset}`).
-                    then(
-                        resp=>resp.json()
-                    );
+                    const response = await citizensRequests.getAllCitizens(offset);
                     res = response;
+                    urlToPass+='getall';
                 
                 }
-                
-                offset += res.length < 40? res.length : 40; 
- 
-
-                /*
-                res = [
-                    {
-                        "Citizen_id": 1,
-                        "Fam": "Иванов".toUpperCase(),
-                        "Imya": "Иван".toUpperCase(),
-                        "Otchest": "Иванович".toUpperCase(),
-                        "Dat_rozhd": "1988.01.11"
-                    },
-                    {
-                        "Citizen_id": 3,
-                        "Fam": "СЕРГЕЙ".toUpperCase(),
-                        "Imya": "СРЕГЕЕВ".toUpperCase(),
-                        "Otchest": "СЕРГЕЕВИЧ".toUpperCase(),
-                        "Dat_rozhd": "1988.01.12"
-                    },
-                    {
-                        "Citizen_id": 2,
-                        "Fam": "Иванов".toUpperCase(),
-                        "Imya": "Иван".toUpperCase(),
-                        "Otchest": "Иванович".toUpperCase(),
-                        "Dat_rozhd": "1968.01.11"
-                    }
-                ]
-                offset = 0;
-                url= null;
-                urlQueriesToResults = null;
                 */
+                res = [{
+                    Citizen_id: 0,
+                    Fam:"ИВАН",
+                    Imya:"ИВАН",
+                    Otchest:"ИВАН",
+                    Dat_rozhd: "19.10.1984"
+                }]
+                offset += res.length < 40? res.length : 40; 
+
                
                 Ext.widget('SearchResultsWin',{
                     citizens: res,
                     offset: offset,
-                    url:url,
+                    url: urlToPass,
                     empty: res.length == 0,
                     searchBody: urlQueriesToResults
                 }).show();
@@ -178,9 +142,6 @@ Ext.define('CitizensApp.view.SearchForm', {
         }
 
     ],
-
-   
-
 
 });
 

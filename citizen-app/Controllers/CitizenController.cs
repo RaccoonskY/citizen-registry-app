@@ -1,9 +1,18 @@
-﻿using Microsoft.Ajax.Utilities;
+﻿using citizen_app.Models;
+using FastReport.Export.Pdf;
+using FastReport;
+using FastReport.Web;
+using Microsoft.Ajax.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.UI.WebControls;
+using System.Data;
+using System.IO;
+using System.Drawing;
+using FastReport.Data;
 
 namespace citizen_app.Controllers
 {
@@ -13,19 +22,66 @@ namespace citizen_app.Controllers
         public CitizenController()
         {
 
-            this.context = new CitizenDbContext();
+            this.context = new CitizenDbContext(
+                "Host=127.0.0.1;" +
+                "Server=vic_ifx;" +
+                "Service=9088;" +
+                "User ID=informix;" +
+                "password=in4mix;" +
+                "Database=citizendb;" +
+                "CLIENT_LOCALE=ru_RU.CP1251;" +
+                "DB_LOCALE=ru_RU.915");
         }
         public CitizenController(ICitizenDbContext dbContext) {
 
             this.context = dbContext;
         }
 
-
+       
         public ActionResult Index()
         {
             return View();
         }
+        public ActionResult GeneratePdfReport()
+        {
+            List<Citizen> citizens = GetCitizens();
 
+            // Создайте объект отчета FastReport
+            Report report = new Report();
+
+            // Загрузите шаблон отчета (замените "YourReportTemplate.frx" на имя вашего шаблона)
+            report.Load(Server.MapPath("../CitizensReportv1.frx"));
+
+            // Задайте источник данных для отчета
+            report.RegisterData(citizens, "Citizens");
+
+            // Подготовьтесь для экспорта отчета в PDF
+            PDFExport pdfExport = new PDFExport();
+            report.Prepare();
+
+            // Создайте MemoryStream для хранения PDF-файла
+            System.IO.MemoryStream stream = new System.IO.MemoryStream();
+
+            // Экспортируйте отчет в формат PDF и сохраните его в MemoryStream
+            report.Export(pdfExport, stream);
+
+            // Определите имя файла для выдачи пользователю
+            string fileName = "CitizenReport.pdf";
+
+            // Выдайте PDF-файл пользователю
+            return File(stream.ToArray(), "application/pdf", fileName);
+        }
+        private List<Citizen> GetCitizens()
+        {
+            List<Citizen> citizens = new List<Citizen>
+            {
+                new Citizen {Citizen_id=1, Fam = "Иван", Imya = "Петров", Otchest = "Иванович", Dat_rozhd="19.11.2004" },
+                new Citizen { Citizen_id=2,Fam = "Мария", Imya = "Иванова", Otchest = "Иванович", Dat_rozhd="19.11.2004" },
+                new Citizen { Citizen_id=2,Fam = "Мария", Imya = "Иванова", Otchest = "Иванович", Dat_rozhd="19.11.2004" },
+                // Добавьте остальных граждан
+            };
+            return citizens;
+        }
         [HttpGet]
         public ActionResult GetAll(int offset = 0)
         {
@@ -136,6 +192,14 @@ namespace citizen_app.Controllers
             });
 
             return Json(res);
+        }
+
+        [HttpGet]
+        [Route("Citizen/Report")]
+        public ActionResult GetReport(List<Models.Citizen> citizensToReport)
+        {
+            WebReport report = new WebReport();
+            return View();
         }
     }
 }

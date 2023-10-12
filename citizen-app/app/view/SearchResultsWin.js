@@ -1,7 +1,8 @@
 Ext.define('CitizensApp.view.SearchResultsWin', {
     requires:[
         "CitizensApp.store.Citizens",
-        "CitizensApp.view.CitizenUpdateWin"
+        "CitizensApp.view.CitizenUpdateWin",
+        'CitizensApp.controller.CitizenRequests'
     ],
     extend: 'Ext.window.Window',
     alias: 'widget.SearchResultsWin',
@@ -19,18 +20,12 @@ Ext.define('CitizensApp.view.SearchResultsWin', {
 
 
     constructor: function(config){
-        
+        const citizenRequests = CitizensApp.controller.CitizenRequests;
         var citizensStore = Ext.create("CitizensApp.store.Citizens");
 
         if (config.citizens) {
             
-            config.citizens = config.citizens.map((elem) => ({
-                id: elem.Citizen_id,
-                fam: elem.Fam,
-                imya: elem.Imya,
-                otchest: elem.Otchest,
-                dat_rozhd: `${elem.Dat_rozhd.slice(3,5)}.${elem.Dat_rozhd.slice(0,2)}.${elem.Dat_rozhd.slice(-4)}`
-            }));
+            config.citizens = citizenRequests.getViewModels(config.citizens);
             citizensStore.loadData(config.citizens);
 
             
@@ -46,8 +41,7 @@ Ext.define('CitizensApp.view.SearchResultsWin', {
                     text: 'Дата рождения',
                     dataIndex: 'dat_rozhd',
                     renderer: function (value) {
-                        // Use Ext.Date.format to format the date in 'dd-mm-yyyy' format
-                        return Ext.Date.format(value, 'd-m-Y');
+                        return Ext.Date.format(value, 'd.m.Y');
                     },
                     flex: 1 
                 }
@@ -65,46 +59,23 @@ Ext.define('CitizensApp.view.SearchResultsWin', {
                         handler: async function(){
                             const store = grid.getStore();
                             let citizensToAdd = null;
+
                             if(config.searchBody != null){
-                                let response = await fetch(config.url+`?offset=${config.offset}`,{
-                                    method: "PUT",
-                                    headers: {
-                                        "Content-Type": "application/json",
-                                        },
-                                    body: config.searchBody
-                                }).
-                                then(
-                                    resp=>resp.json()
-                                ).
-                                catch(()=>{
-                                    return [];
-                                });
+                                const response = await citizenRequests.searchCitizen(config.searchBody,config.offset);
                                 citizensToAdd = response;
                             }
                             else{
-                                let response = await fetch(config.url+`?offset=${config.offset}`).
-                                then(
-                                    resp=>resp.json()
-                                ).
-                                catch(()=>{
-                                    return [];
-                                });
+                                let response = await citizenRequests.getAllCitizens(config.offset);
                                 citizensToAdd = response;
                             }
             
-                            citizensToAdd = citizensToAdd.map((elem) => ({
-                                id: elem.Citizen_id,
-                                fam: elem.Fam,
-                                imya: elem.Imya,
-                                otchest: elem.Otchest,
-                                dat_rozhd: `${elem.Dat_rozhd.slice(3,5)}.${elem.Dat_rozhd.slice(0,2)}.${elem.Dat_rozhd.slice(-4)}`
-                            }));
+                            citizensToAdd = citizenRequests.getViewModels(citizensToAdd);
             
                             if(citizensToAdd != null && citizensToAdd.length > 0) {
                                 store.loadData(citizensToAdd, append=true); 
                                 config.offset += citizensToAdd.length;}
                             else{
-                                alert("Данные для загрузки отсутствуют");
+                                Ext.Msg.alert('Загрузка данных прервана',"Данные для загрузки отсутствуют");
                             }
                             
                         }
@@ -114,7 +85,6 @@ Ext.define('CitizensApp.view.SearchResultsWin', {
                         itemId:"addfBtn",
                         handler: function() {
                             Ext.widget("CitizenUpdateWin");
-                            
                         }
                     },
                     {
@@ -124,15 +94,12 @@ Ext.define('CitizensApp.view.SearchResultsWin', {
                             const grid = this.up('gridpanel');
                             const selectedRecords = grid.getSelectionModel().getSelection();
                             const selectedRecordData = selectedRecords[0].getData();
-            
-                            // console.log(selectedRecordData);
-                            // alert('Вы собираетесь изменить ' + selectedRecords[0].get('fam'));
+
                             Ext.widget("CitizenUpdateWin",{  
                                 citizenToUpdate: selectedRecordData,
                                 updating: true
                             });
-                            // удаление из таблицы
-                            // store.removeAt(rowIndex);
+
                         }
             
                     },
@@ -153,16 +120,7 @@ Ext.define('CitizensApp.view.SearchResultsWin', {
                                 icon: Ext.Msg.QUESTION,
                                 fn: async (btn)=>{
                                     if(btn == 'yes'){
-                                        const url = "https://localhost:44335/citizen/delete?";
-                                        res = await fetch(
-                                            url+`id=${selectedRecords[0].get('id')}`,
-                                            {
-                                                method:"DELETE",
-            
-                                            }
-                                        ).
-                                        then(resp=>resp.json()).catch(res=>alert(`Не удалось удалить гражданина: ${res}`));   
-            
+                                        res = await citizenRequests.deleteCitizen(selectedRecords);
                                         if(res){
                                             store.removeAt(rowIndexToDel);
                                         }

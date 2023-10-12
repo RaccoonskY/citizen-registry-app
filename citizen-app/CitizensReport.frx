@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ScriptLanguage="CSharp" ReportInfo.Created="10/12/2023 03:36:25" ReportInfo.Modified="10/12/2023 03:58:04" ReportInfo.CreatorVersion="2023.3.5.0">
+  <Dictionary>
+    <TableDataSource Name="Citizens" ReferenceName="NorthWind.Employees" DataType="System.Int32" PropName="Employees" Enabled="true">
+      <Column Name="Title" Enabled="false" DataType="System.String"/>
+      <Column Name="TitleOfCourtesy" Enabled="false" DataType="System.String"/>
+      <Column Name="HireDate" Enabled="false" DataType="System.DateTime"/>
+      <Column Name="Address" Enabled="false" DataType="System.String"/>
+      <Column Name="City" Enabled="false" DataType="System.String"/>
+      <Column Name="Region" Enabled="false" DataType="System.String"/>
+      <Column Name="PostalCode" Enabled="false" DataType="System.String"/>
+      <Column Name="Country" Enabled="false" DataType="System.String"/>
+      <Column Name="HomePhone" Enabled="false" DataType="System.String"/>
+      <Column Name="Extension" Enabled="false" DataType="System.String"/>
+      <Column Name="Photo" Enabled="false" DataType="System.Byte[]" BindableControl="Picture"/>
+      <Column Name="Notes" Enabled="false" DataType="System.String"/>
+      <Column Name="ReportsTo" Enabled="false" DataType="System.Int32"/>
+      <Column Name="EmployeeID" Alias="Citizen_id" DataType="System.Int32"/>
+      <Column Name="LastName" Alias="Fam" DataType="System.String"/>
+      <Column Name="FirstName" Alias="Imya" DataType="System.String"/>
+      <Column Name="Dat_rozhd" DataType="System.DateTime" PropName="BirthDate"/>
+      <Column Name="Otchest" DataType="System.Int32" PropName="Column" Calculated="true" Expression=""/>
+    </TableDataSource>
+    <Parameter Name="Parameter" DataType="System.String" AsString=""/>
+  </Dictionary>
+  <ReportPage Name="Page1" Watermark.Font="Arial, 60pt">
+    <ReportTitleBand Name="ReportTitle1" Width="718.2" Height="37.8">
+      <TextObject Name="Text12" Top="9.45" Width="255.15" Height="18.9" Text="ОТЧЁТ О ГРАЖДАНАХ" Font="Arial, 10pt"/>
+    </ReportTitleBand>
+    <DataBand Name="Data1" Top="40.36" Width="718.2" Height="122.85" CanGrow="true" DataSource="Citizens">
+      <TextObject Name="Text1" Left="66.15" Top="9.45" Width="75.6" Height="18.9" Text="Фамилия:" Font="Arial, 10pt"/>
+      <TextObject Name="Text2" Left="66.15" Top="66.15" Width="75.6" Height="18.9" Text="Отчество:" Font="Arial, 10pt"/>
+      <TextObject Name="Text3" Left="103.95" Top="37.8" Width="37.8" Height="18.9" Text="Имя:" Font="Arial, 10pt"/>
+      <TextObject Name="Text7" Left="28.35" Top="94.5" Width="113.4" Height="18.9" Text="Дата рождения:" Font="Arial, 10pt"/>
+      <TextObject Name="Text8" Left="170.1" Top="66.15" Width="245.7" Height="18.9" Text="[Citizens.Otchest]" Font="Arial, 10pt"/>
+      <TextObject Name="Text9" Left="170.1" Top="37.8" Width="245.7" Height="18.9" Text="[Citizens.Imya]" Font="Arial, 10pt"/>
+      <TextObject Name="Text10" Left="170.1" Top="9.45" Width="245.7" Height="18.9" Text="[Citizens.Fam]" Font="Arial, 10pt"/>
+      <TextObject Name="Text11" Left="170.1" Top="94.5" Width="245.7" Height="18.9" Text="[Citizens.Dat_rozhd]" Format="Date" Format.Format="d" Font="Arial, 10pt"/>
+      <LineObject Name="Line2" Left="9.45" Width="708.75"/>
+      <LineObject Name="Line4" Width="9.45"/>
+    </DataBand>
+    <PageFooterBand Name="PageFooter1" Top="165.77" Width="718.2" Height="18.9">
+      <LineObject Name="Line1" Left="28.35" Width="689.85"/>
+    </PageFooterBand>
+  </ReportPage>
+</Report>

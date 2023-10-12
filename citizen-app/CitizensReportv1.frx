@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ScriptLanguage="CSharp" ReportInfo.Created="10/12/2023 10:48:39" ReportInfo.Modified="10/12/2023 10:52:43" ReportInfo.CreatorVersion="2023.3.5.0">
+  <Dictionary>
+    <BusinessObjectDataSource Name="Citizens" ReferenceName="Citizens" DataType="System.Collections.Generic.List`1[[reportBuilder.Citizen, reportBuilder, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]" Enabled="true">
+      <Column Name="Citizen_id" DataType="System.Int32"/>
+      <Column Name="Fam" DataType="System.String"/>
+      <Column Name="Imya" DataType="System.String"/>
+      <Column Name="Otchest" DataType="System.String"/>
+      <Column Name="Dat_rozhd" DataType="System.String"/>
+    </BusinessObjectDataSource>
+  </Dictionary>
+  <ReportPage Name="Page1" Watermark.Font="Arial, 60pt">
+    <ReportTitleBand Name="ReportTitle1" Width="718.2" Height="56.7">
+      <TextObject Name="Text1" Left="274.05" Top="18.9" Width="236.25" Height="18.9" Text="ОТЧЁТ-ГРАЖДАНЕ" Font="Arial, 10pt"/>
+    </ReportTitleBand>
+    <DataBand Name="Data1" Top="59.9" Width="718.2" Height="75.6" DataSource="Citizens">
+      <LineObject Name="Line2" Width="718.2"/>
+      <TextObject Name="Text2" Left="66.15" Top="18.9" Width="179.55" Height="18.9" Text="Фамилия Имя Отчество:" Font="Arial, 10pt"/>
+      <TextObject Name="Text3" Left="66.15" Top="47.25" Width="179.55" Height="18.9" Text="Дата Рождения:" Font="Arial, 10pt"/>
+      <TextObject Name="Text4" Left="255.15" Top="18.9" Width="94.5" Height="18.9" Text="[Citizens.Fam]" Font="Arial, 10pt"/>
+      <TextObject Name="Text5" Left="378" Top="18.9" Width="94.5" Height="18.9" Text="[Citizens.Imya]" Font="Arial, 10pt"/>
+      <TextObject Name="Text6" Left="500.85" Top="18.9" Width="94.5" Height="18.9" Text="[Citizens.Otchest]" Font="Arial, 10pt"/>
+      <TextObject Name="Text7" Left="255.15" Top="47.25" Width="94.5" Height="18.9" Text="[Citizens.Dat_rozhd]" Font="Arial, 10pt"/>
+    </DataBand>
+    <PageFooterBand Name="PageFooter1" Top="138.7" Width="718.2" Height="18.9">
+      <LineObject Name="Line3" Width="718.2"/>
+    </PageFooterBand>
+  </ReportPage>
+</Report>

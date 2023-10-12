@@ -1,0 +1,106 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ScriptLanguage="CSharp" TextQuality="Regular" ReportInfo.Name="Simple List" ReportInfo.Author="Fast Reports Inc" ReportInfo.Description="Demonstrates a simple list report. To create it:&#13;&#10;- go to &quot;Data&quot; menu and select &quot;Choose Report Data...&quot; item to select a datasource;&#13;&#10;- go to &quot;Report|Configure Bands...&quot; menu to create the band structure;&#13;&#10;- return to the report page, doubleclick the data band to show its editor;&#13;&#10;- choose the datasource;&#13;&#10;- drag data from the Data Dictionary window to the band." ReportInfo.Created="01/17/2008 03:05:57" ReportInfo.Modified="10/12/2023 03:29:28" ReportInfo.CreatorVersion="2023.3.5.0">
+  <ScriptText>using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Windows.Forms;
+using System.Drawing;
+using System.Data;
+using FastReport;
+using FastReport.Data;
+using FastReport.Dialog;
+using FastReport.Barcode;
+using FastReport.Table;
+using FastReport.Utils;
+
+namespace FastReport
+{
+  public class ReportScript
+  {
+
+    private void Page1_ManualBuild(object sender, EventArgs e)
+    {
+      DataSourceBase rowData = Report.GetDataSource(&quot;Citizens&quot;);
+      rowData.Init();
+      while (rowData.HasMoreRows)
+      {
+
+        Fam.Text(1);
+        Imya.Text(2);
+        Otchest.Text(3);
+        Dat_rozhd.Text(4);
+        // переходим на следующую запись источника
+        rowData.Next();
+      }
+
+    }
+
+
+  }
+}
+</ScriptText>
+  <Dictionary/>
+  <ReportPage Name="Page1" Watermark.Font="Arial, 60pt" ManualBuildEvent="Page1_ManualBuild">
+    <ReportTitleBand Name="ReportTitle1" Width="718.2" Height="37.8" CanGrow="true">
+      <TextObject Name="Text1" Top="9.45" Width="718.2" Height="28.35" Text="ГРАЖДАНЕ" HorzAlign="Center" VertAlign="Center" Font="Tahoma, 14pt, style=Bold"/>
+    </ReportTitleBand>
+    <DataBand Name="Data1" Top="41" Width="718.2" Height="189" Border.Lines="All" Border.Color="Maroon" CanGrow="true">
+      <TextObject Name="Text3" Left="9.45" Top="66.15" Width="103.95" Height="18.9" Text="ИМЯ:" VertAlign="Center" Font="Tahoma, 9pt, style=Bold"/>
+      <TextObject Name="Imya" Left="122.85" Top="66.15" Width="453.6" Height="18.9" Text="[Citizen.Imya]&#13;&#10;" VertAlign="Center" Font="Tahoma, 9pt"/>
+      <TextObject Name="Text5" Left="9.45" Top="113.4" Width="103.95" Height="28.35" Text="ДАТА РОЖДЕНИЯ:" VertAlign="Center" Font="Tahoma, 9pt, style=Bold"/>
+      <TextObject Name="Dat_rozhd" Left="122.85" Top="113.4" Width="453.6" Height="18.9" CanGrow="true" Text="[Citizen.Dat_rozhd]" Format="Date" Format.Format="d" VertAlign="Center" Font="Tahoma, 9pt"/>
+      <TextObject Name="Fam" Left="122.85" Top="47.25" Width="453.6" Height="18.9" Text="[Citizen.Fam]" VertAlign="Center" Font="Tahoma, 9pt"/>
+      <TextObject Name="Otchest" Left="122.85" Top="85.05" Width="453.6" Height="18.9" Text="[Citizen.Otchest]" VertAlign="Center" Font="Tahoma, 9pt"/>
+      <TextObject Name="Text15" Left="9.45" Top="47.25" Width="103.95" Height="18.9" Text="ФАМИЛИЯ:" VertAlign="Center" Font="Tahoma, 9pt, style=Bold"/>
+      <TextObject Name="Text16" Left="9.45" Top="85.05" Width="103.95" Height="18.9" Text="ОТЧЕСТВО:" VertAlign="Center" Font="Tahoma, 9pt, style=Bold"/>
+      <TextObject Name="Text2" Width="718.2" Height="37.8" Border.Lines="All" Border.Color="Maroon" Fill="LinearGradient" Fill.StartColor="IndianRed" Fill.EndColor="Maroon" Fill.Angle="90" Fill.Focus="0.52" Fill.Contrast="1" Padding="10, 0, 2, 0" VertAlign="Center" Font="Tahoma, 12pt, style=Bold" TextFill.Color="White"/>
+      <TableObject Name="Table1" Left="831.6" Top="28.35" Width="330.75" Height="160.65">
+        <TableColumn Name="Column1"/>
+        <TableColumn Name="Column2"/>
+        <TableColumn Name="Column3"/>
+        <TableColumn Name="Column4"/>
+        <TableColumn Name="Column5"/>
+        <TableRow Name="Row1">
+          <TableCell Name="Cell1" Font="Arial, 10pt"/>
+          <TableCell Name="Cell2" Font="Arial, 10pt"/>
+          <TableCell Name="Cell3" Font="Arial, 10pt"/>
+          <TableCell Name="Cell4" Font="Arial, 10pt"/>
+          <TableCell Name="Cell5" Font="Arial, 10pt"/>
+        </TableRow>
+        <TableRow Name="Row2" Height="85.05">
+          <TableCell Name="Cell6" Font="Arial, 10pt"/>
+          <TableCell Name="Cell7" Font="Arial, 10pt"/>
+          <TableCell Name="Cell8" Font="Arial, 10pt"/>
+          <TableCell Name="Cell9" Font="Arial, 10pt"/>
+          <TableCell Name="Cell10" Font="Arial, 10pt"/>
+        </TableRow>
+        <TableRow Name="Row3">
+          <TableCell Name="Cell11" Font="Arial, 10pt"/>
+          <TableCell Name="Cell12" Font="Arial, 10pt"/>
+          <TableCell Name="Cell13" Font="Arial, 10pt"/>
+          <TableCell Name="Cell14" Font="Arial, 10pt"/>
+          <TableCell Name="Cell15" Font="Arial, 10pt"/>
+        </TableRow>
+        <TableRow Name="Row4">
+          <TableCell Name="Cell16" Font="Arial, 10pt"/>
+          <TableCell Name="Cell17" Font="Arial, 10pt"/>
+          <TableCell Name="Cell18" Font="Arial, 10pt"/>
+          <TableCell Name="Cell19" Font="Arial, 10pt"/>
+          <TableCell Name="Cell20" Font="Arial, 10pt"/>
+        </TableRow>
+        <TableRow Name="Row5">
+          <TableCell Name="Cell21" Font="Arial, 10pt"/>
+          <TableCell Name="Cell22" Font="Arial, 10pt"/>
+          <TableCell Name="Cell23" Font="Arial, 10pt"/>
+          <TableCell Name="Cell24" Font="Arial, 10pt"/>
+          <TableCell Name="Cell25" Font="Arial, 10pt"/>
+        </TableRow>
+      </TableObject>
+
+    </DataBand>
+    <PageFooterBand Name="PageFooter1" Top="233.2" Width="718.2" Height="28.35" Fill.Color="WhiteSmoke" CanGrow="true">
+      <TextObject Name="Text10" Left="614.25" Width="94.5" Height="28.35" Text="[PageN]" HorzAlign="Right" VertAlign="Center" Font="Tahoma, 8pt"/>
+    </PageFooterBand>
+  </ReportPage>
+</Report>

@@ -2,7 +2,8 @@ Ext.define('CitizensApp.view.CitizenUpdateWin', {
 
 
     requires:[
-        'CitizensApp.view.CyrillicTextField'
+        'CitizensApp.view.CyrillicTextField',
+        'CitizensApp.controller.CitizenRequests'
     ],
 
     extend: 'Ext.window.Window',
@@ -22,6 +23,8 @@ Ext.define('CitizensApp.view.CitizenUpdateWin', {
     closeAction: 'destroy',
     minWidth:200,
     minHeight:200,
+
+
 
 
     items:[{
@@ -51,7 +54,8 @@ Ext.define('CitizensApp.view.CitizenUpdateWin', {
             fieldLabel: 'Дата рождения',
             name:'dat_rozhd',
             labelAlign: 'top',
-            format: 'd.m.Y'
+            format: 'd.m.Y',
+            maxValue: new Date()
 
         }
 
@@ -73,37 +77,10 @@ Ext.define('CitizensApp.view.CitizenUpdateWin', {
         return objEqual;
     },
 
-    checkIdentical: function (citizenToUpdate, callback) {
-        const checkDTO = citizenToUpdate;
-        fetch("https://localhost:44335/citizen/getidenticals", {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(checkDTO)
-        })
-        .then(response => response.json())
-        .then(data => {
-            const identicals = data ? data: 0;
-            callback(identicals);
-        })
-        .catch(error => {
-            callback(0);
-        });
-    },
+    
 
     addNewCitizen: async function(citizenToAdd){
-        const res = await fetch(
-            'https://localhost:44335/citizen/post',
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    },
-                body: JSON.stringify(citizenToAdd)
-            }
-        ).then(resp=>resp.json()).catch(error=>alert(`Не удалось добавить гражданина: ${error}`))
-            
+        const res = this.citizenRequests.addCitizen(citizenToAdd);
         if(res){
             var parentStore = Ext.getStore('citizenStore');
             citizenToAdd["dat_rozhd"] = citizenToAdd.datrozhd;
@@ -112,21 +89,12 @@ Ext.define('CitizensApp.view.CitizenUpdateWin', {
             parentStore.add(citizenToAdd);
             return true;
         }
+        
         return false;
     },
 
     updateCitizen: async function(citizenToUpdate){
-        const res = await fetch(
-            'https://localhost:44335/citizen/update',
-            {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                    },
-
-                body: JSON.stringify(citizenToUpdate)
-            }
-        ).then(resp=>resp.json()).catch(error=>alert(`Не удалось обновить гражданина гражданина: ${error}`))
+        const res = this.citizenRequests.updateCitizen(citizenToUpdate);
             
         if(res){
             var parentStore = Ext.getStore('citizenStore');
@@ -197,7 +165,7 @@ Ext.define('CitizensApp.view.CitizenUpdateWin', {
 
     identicalRoute: function(updatedRecord, operationOnCitizen){
         const window = this;
-        this.checkIdentical(updatedRecord, function (identicals) {
+        this.citizenRequests.checkIdentical(updatedRecord, function (identicals) {
             if (identicals > 0) {
                 Ext.Msg.show({
                     title: `Подтвердите добавление/изменение гражданина.`,
@@ -209,7 +177,15 @@ Ext.define('CitizensApp.view.CitizenUpdateWin', {
                     },
                     fn: (btn) =>{
                         if (btn == 'yes') {
+                            const waitWinMB = Ext.create('Ext.window.MessageBox',{
+                                title:"Пожалуйста, подождите",
+                                msg: 'Пожалуйста, подождите, пока операция не завершится',
+                                closable: false
+                            });
+                            waitWinMB.show();
                             const res = operationOnCitizen(updatedRecord);
+                            aele
+                            waitWinMB.destroy();
                             window.checkSuccess( res, 'Гражданин был успешно добавлен/изменён');
                         }
                         else{
@@ -220,7 +196,14 @@ Ext.define('CitizensApp.view.CitizenUpdateWin', {
                 
                
             } else {
+                const waitWinMB = Ext.create('Ext.window.MessageBox',{
+                    title:"Пожалуйста, подождите",
+                    msg: 'Пожалуйста, подождите, пока операция не завершится',
+                    closable: false
+                });
+                waitWinMB.show();
                 const res = operationOnCitizen(updatedRecord);
+                waitWinMB.destroy();
                 window.checkSuccess(res, 'Гражданин был успешно добавлен');
             }
         });
@@ -240,18 +223,19 @@ Ext.define('CitizensApp.view.CitizenUpdateWin', {
                 Ext.Msg.show({
                     title: 'Подтвердите изменение гражданина.',
                     msg:`Вы точно хотите изменить: ${oldRecord.fam} ${oldRecord.imya} ${oldRecord.otchest}?`,
-                    buttons: Ext.Msg.YESNO,
+                    buttons: Ext.Msg.YESNOCANCEL,
                     buttonText:{
                         yes:'Да',
-                        no:'Нет'
+                        no:'Нет',
+                        cancel:"Остаться"
                     },
                     minWidth:400,
                     fn: (btn)=>{
                         if(btn == 'yes'){
                             window.identicalRoute(updatedRecord, window.updateCitizen);
                         }
-                        else{
-                            window.askForExit();
+                        else if (btn == 'no'){
+                            window.destroy();
                         }
                     }
                     
@@ -272,23 +256,23 @@ Ext.define('CitizensApp.view.CitizenUpdateWin', {
         beforeclose: function (window) {
             const updatedRecord = this.getNewCitizenDTO(window);
             if (window.checkEmptyDTO(updatedRecord)) {
-                
                 updatedRecord["dat_rozhd"] = updatedRecord.datrozhd;
                 Ext.Msg.show({
                     title: 'Подтвердите добавление гражданина.',
                     msg:`Вы точно хотите добавить: ${updatedRecord.fam} ${updatedRecord.imya} ${updatedRecord.otchest}?`,
-                    buttons: Ext.Msg.YESNO,
+                    buttons: Ext.Msg.YESNOCANCEL,
                     buttonText:{
                         yes:'Да',
-                        no:'Нет'
+                        no:'Нет',
+                        cancel: 'Остаться'
                     },
                     minWidth:400,
                     fn: (btn)=>{
                         if(btn == 'yes'){
                             window.identicalRoute(updatedRecord, window.addNewCitizen);
                         }
-                        else{
-                            window.askForExit();
+                        else if (btn == 'no'){
+                            window.destroy();
                         }
                     }
                     
@@ -310,6 +294,7 @@ Ext.define('CitizensApp.view.CitizenUpdateWin', {
             }
                 
         }    
+        config.citizenRequests=CitizensApp.controller.CitizenRequests;
         this.callParent([config]);
         this.initConfig(config);
 
