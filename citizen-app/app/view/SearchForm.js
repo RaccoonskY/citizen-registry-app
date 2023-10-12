@@ -88,7 +88,7 @@ Ext.define('CitizensApp.view.SearchForm', {
                 
                 let urlQueriesToResults = null;
                 let urlToPass = citizensRequests.url;
-                /*
+                
                 if (
                     queries.fam
                     ||queries.imya
@@ -119,14 +119,7 @@ Ext.define('CitizensApp.view.SearchForm', {
                     urlToPass+='getall';
                 
                 }
-                */
-                res = [{
-                    Citizen_id: 0,
-                    Fam:"ИВАН",
-                    Imya:"ИВАН",
-                    Otchest:"ИВАН",
-                    Dat_rozhd: "19.10.1984"
-                }]
+
                 offset += res.length < 40? res.length : 40; 
 
                

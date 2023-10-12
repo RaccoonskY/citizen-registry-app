@@ -22,15 +22,7 @@ namespace citizen_app.Controllers
         public CitizenController()
         {
 
-            this.context = new CitizenDbContext(
-                "Host=127.0.0.1;" +
-                "Server=vic_ifx;" +
-                "Service=9088;" +
-                "User ID=informix;" +
-                "password=in4mix;" +
-                "Database=citizendb;" +
-                "CLIENT_LOCALE=ru_RU.CP1251;" +
-                "DB_LOCALE=ru_RU.915");
+            this.context = new CitizenDbContext();
         }
         public CitizenController(ICitizenDbContext dbContext) {
 
@@ -42,33 +34,25 @@ namespace citizen_app.Controllers
         {
             return View();
         }
-        public ActionResult GeneratePdfReport()
+        [HttpPut]
+        public ActionResult GeneratePdfReport(List<Citizen> citizens)
         {
-            List<Citizen> citizens = GetCitizens();
 
-            // Создайте объект отчета FastReport
             Report report = new Report();
 
-            // Загрузите шаблон отчета (замените "YourReportTemplate.frx" на имя вашего шаблона)
             report.Load(Server.MapPath("../CitizensReportv1.frx"));
 
-            // Задайте источник данных для отчета
             report.RegisterData(citizens, "Citizens");
 
-            // Подготовьтесь для экспорта отчета в PDF
             PDFExport pdfExport = new PDFExport();
             report.Prepare();
 
-            // Создайте MemoryStream для хранения PDF-файла
             System.IO.MemoryStream stream = new System.IO.MemoryStream();
 
-            // Экспортируйте отчет в формат PDF и сохраните его в MemoryStream
             report.Export(pdfExport, stream);
 
-            // Определите имя файла для выдачи пользователю
             string fileName = "CitizenReport.pdf";
 
-            // Выдайте PDF-файл пользователю
             return File(stream.ToArray(), "application/pdf", fileName);
         }
         private List<Citizen> GetCitizens()

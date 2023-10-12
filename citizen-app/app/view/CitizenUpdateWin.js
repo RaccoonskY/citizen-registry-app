@@ -25,8 +25,6 @@ Ext.define('CitizensApp.view.CitizenUpdateWin', {
     minHeight:200,
 
 
-
-
     items:[{
             xtype: 'cyrillicfield',
             fieldLabel: 'Фамилия',
@@ -80,7 +78,8 @@ Ext.define('CitizensApp.view.CitizenUpdateWin', {
     
 
     addNewCitizen: async function(citizenToAdd){
-        const res = this.citizenRequests.addCitizen(citizenToAdd);
+        const res =  CitizensApp.controller.CitizenRequests.addCitizen(citizenToAdd);
+        
         if(res){
             var parentStore = Ext.getStore('citizenStore');
             citizenToAdd["dat_rozhd"] = citizenToAdd.datrozhd;
@@ -94,7 +93,7 @@ Ext.define('CitizensApp.view.CitizenUpdateWin', {
     },
 
     updateCitizen: async function(citizenToUpdate){
-        const res = this.citizenRequests.updateCitizen(citizenToUpdate);
+        const res = CitizensApp.controller.CitizenRequests.updateCitizen(citizenToUpdate);
             
         if(res){
             var parentStore = Ext.getStore('citizenStore');
@@ -170,41 +169,28 @@ Ext.define('CitizensApp.view.CitizenUpdateWin', {
                 Ext.Msg.show({
                     title: `Подтвердите добавление/изменение гражданина.`,
                     msg:`Идентичные граждане уже существуют: ${identicals}.\nВы уверены, что хотите добавить/изменить?`,
-                    buttons: Ext.Msg.YESNO,
+                    buttons: Ext.Msg.YESNOCANCEL,
                     buttonText:{
                         yes:'Да',
-                        no:'Нет'
+                        no:'Нет',
+                        cancel: 'Остаться'
                     },
                     fn: (btn) =>{
-                        if (btn == 'yes') {
-                            const waitWinMB = Ext.create('Ext.window.MessageBox',{
-                                title:"Пожалуйста, подождите",
-                                msg: 'Пожалуйста, подождите, пока операция не завершится',
-                                closable: false
-                            });
-                            waitWinMB.show();
+                        if(btn == 'yes'){
                             const res = operationOnCitizen(updatedRecord);
-                            aele
-                            waitWinMB.destroy();
                             window.checkSuccess( res, 'Гражданин был успешно добавлен/изменён');
                         }
-                        else{
-                            window.askForExit();
+                        else if (btn == 'no'){
+                            window.destroy();
                         }
                     }
                 })
                 
                
             } else {
-                const waitWinMB = Ext.create('Ext.window.MessageBox',{
-                    title:"Пожалуйста, подождите",
-                    msg: 'Пожалуйста, подождите, пока операция не завершится',
-                    closable: false
-                });
-                waitWinMB.show();
+               
                 const res = operationOnCitizen(updatedRecord);
-                waitWinMB.destroy();
-                window.checkSuccess(res, 'Гражданин был успешно добавлен');
+                window.checkSuccess(res, 'Операция прошла успешно');
             }
         });
        

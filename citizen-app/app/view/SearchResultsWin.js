@@ -134,8 +134,25 @@ Ext.define('CitizensApp.view.SearchResultsWin', {
                     {
                         text: "Печать",
                         itemId:"printBtn",
-                        handler: function() {
-                            this.up('window').close();
+                        handler: async function() {
+                            const grid = this.up('gridpanel');
+                            const store = grid.getStore();
+                            const citizensToReport = [];
+                            store.each(function(record){
+                                citizensToReport.push(
+                                    {
+                                        "Citizen_id":record.get('id'),
+                                        "Fam":record.get('fam'),
+                                        "Imya":record.get('imya'),
+                                        "Otchest":record.get('otchest'),
+                                        "Dat_rozhd":Ext.Date.format(record.get('dat_rozhd'), 'd.m.Y')
+
+                                    }
+                                );
+                            });
+
+                            const res = await citizenRequests.sendCitizensReport(citizensToReport);
+
                         }
                     }
                 ]
